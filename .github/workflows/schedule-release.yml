@@ -1,21 +1,28 @@
-name: Scheduled Update
+name: Release Update
 
 on:
-  push:
-    branches:
-      - main
-
-  schedule:
-    - cron: "*/10 * * * *"
-
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
-  test:
+  release:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test workflow
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check update branch
         run: |
-          echo "Workflow is active!"
-          date
+          git fetch origin update-1.4
+          git show origin/update-1.4:update.json
+
+      - name: Test release information
+        run: |
+          echo "Release branch: update-1.4"
+          echo "Target release: 1:10 PM PH"
+          echo "No merge performed."
