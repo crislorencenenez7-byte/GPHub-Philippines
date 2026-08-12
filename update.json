@@ -1,7 +1,7 @@
 {
-  "version": "1.0",
-  "updateName": "Test Update",
+  "version": "1.1",
+  "updateName": "New Features",
   "releaseDate": "2026-08-12",
-  "releaseTime": "10:35",
+  "releaseTime": "10:40",
   "status": "scheduled"
 }
