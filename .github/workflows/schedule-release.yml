@@ -21,6 +21,8 @@ jobs:
       - name: Check release time
         id: release
         run: |
+          set -e
+
           git fetch origin update-1.4
 
           python - <<'PY'
@@ -45,6 +47,7 @@ jobs:
           print("Current UTC:", now)
           print("Release time:", release_time)
           print("Version:", data["version"])
+          print("Update:", data["updateName"])
 
           if now >= release_time:
               with open("/tmp/release-ready", "w") as f:
@@ -73,20 +76,34 @@ jobs:
           git checkout main
           git reset --hard origin/main
 
-          echo "Starting release merge..."
+          echo "Starting scheduled release..."
 
+          # Get release information before the merge.
+          git show origin/update-1.4:update.json > /tmp/update.json
+
+          VERSION=$(python -c "import json; print(json.load(open('/tmp/update.json'))['version'])")
+          UPDATE_NAME=$(python -c "import json; print(json.load(open('/tmp/update.json'))['updateName'])")
+
+          echo "Releasing version: $VERSION"
+          echo "Update: $UPDATE_NAME"
+
+          # Try normal merge first.
           if git merge origin/update-1.4 --no-edit; then
             echo "Merge completed without conflicts."
           else
             echo "Merge conflict detected."
 
+            # The only expected conflict is update.json.
             if git ls-files -u | grep -q "update.json"; then
-              echo "Resolving update.json conflict by keeping it deleted from main."
+              echo "Resolving update.json conflict."
 
+              # update.json belongs to the release branch only.
+              # Keep it deleted from main.
               git rm -f update.json
+
               git add -A
 
-              git commit -m "Release update-1.4"
+              git commit -m "Release $VERSION"
             else
               echo "Unexpected merge conflict detected."
               git merge --abort
@@ -94,24 +111,41 @@ jobs:
             fi
           fi
 
-          # Make sure update.json does not exist in main.
+          # Make sure update.json never remains in main.
           if [ -f update.json ]; then
-            echo "Removing update.json from main..."
             git rm -f update.json
 
             if ! git diff --cached --quiet; then
-              git commit -m "Keep update.json only on update branch"
+              git commit -m "Remove release metadata from main"
             fi
+          fi
+
+          # Create/update version.json in main.
+          cat > version.json <<EOF
+          {
+            "version": "$VERSION",
+            "updateName": "$UPDATE_NAME",
+            "releasedAt": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          }
+          EOF
+
+          git add version.json
+
+          if git diff --cached --quiet; then
+            echo "version.json is already up to date."
+          else
+            git commit -m "Update live version to $VERSION"
           fi
 
           git push origin main
 
           echo "================================="
-          echo "UPDATE 1.4 RELEASED SUCCESSFULLY"
+          echo "SCHEDULED RELEASE SUCCESSFUL"
+          echo "Version: $VERSION"
           echo "================================="
 
       - name: Wait for release time
         if: steps.release.outputs.ready == 'no'
         run: |
           echo "Update is not ready yet."
-          echo "Waiting for the next scheduled check."
+          echo "Next scheduled check will try again."
