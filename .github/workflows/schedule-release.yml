@@ -1,0 +1,27 @@
+name: Scheduled Update
+
+on:
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Update file
+        run: |
+          echo "Updated automatically by GitHub Actions!" > auto-update.txt
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add auto-update.txt
+          git commit -m "Automatic update" || echo "No changes to commit"
+          git push
