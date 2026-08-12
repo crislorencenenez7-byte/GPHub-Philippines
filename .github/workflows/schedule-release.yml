@@ -2,7 +2,7 @@ name: Scheduled Update
 
 on:
   schedule:
-    - cron: "25 2 12 8 *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 jobs:
@@ -16,24 +16,59 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Read update information
-        id: update
+      - name: Check release schedule
+        id: check
         run: |
-          VERSION=$(python -c "import json; print(json.load(open('update.json'))['version'])")
-          NAME=$(python -c "import json; print(json.load(open('update.json'))['updateName'])")
+          python <<'PY'
+          import json
+          from datetime import datetime, timezone
 
-          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "NAME=$NAME" >> "$GITHUB_OUTPUT"
+          with open("update.json") as f:
+              data = json.load(f)
 
-      - name: Create update file
+          release = datetime.fromisoformat(
+              data["releaseDate"] + "T" + data["releaseTime"] + ":00+08:00"
+          )
+
+          now = datetime.now(timezone.utc)
+
+          print("Release time:", release)
+          print("Current time:", now)
+
+          if now >= release:
+              print("RELEASE_READY=true")
+          else:
+              print("RELEASE_READY=false")
+          PY
+
+      - name: Release update
         run: |
-          echo "UPDATE ${{ steps.update.outputs.VERSION }} IS NOW LIVE!" > auto-update.txt
-          echo "${{ steps.update.outputs.NAME }}" >> auto-update.txt
+          python <<'PY'
+          import json
+          from datetime import datetime, timezone
+
+          with open("update.json") as f:
+              data = json.load(f)
+
+          release = datetime.fromisoformat(
+              data["releaseDate"] + "T" + data["releaseTime"] + ":00+08:00"
+          )
+
+          now = datetime.now(timezone.utc)
+
+          if now >= release:
+              with open("auto-update.txt", "w") as f:
+                  f.write(f"UPDATE {data['version']} IS NOW LIVE!\n")
+                  f.write(f"{data['updateName']}\n")
+                  f.write(f"Released: {data['releaseDate']} {data['releaseTime']} PH")
+          else:
+              print("Not yet time for the update.")
+          PY
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add auto-update.txt
-          git commit -m "Release ${{ steps.update.outputs.VERSION }}" || echo "No changes to commit"
+          git commit -m "Automatic scheduled update" || echo "No changes to commit"
           git push
