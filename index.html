@@ -84,6 +84,27 @@
     <div id="latest-announcement" class="grid grid-3"></div>
   </section>
 
+
+     <!-- Scheduled Update -->
+<section class="container" id="scheduled-update" style="padding-bottom: 80px;">
+  <p class="hero-eyebrow">Upcoming Update</p>
+  <h2 class="section-title" id="update-title">Scheduled Update</h2>
+  <p class="section-subtitle" id="update-description">
+    Loading update information...
+  </p>
+
+  <div class="glass card" style="text-align:center; padding:30px;">
+    <h3 id="update-version" class="text-gold">Loading...</h3>
+
+    <div id="update-countdown"
+         style="font-size:2rem; font-weight:700; margin:20px 0;">
+      Loading...
+    </div>
+
+    <p id="update-status"></p>
+  </div>
+</section>
+  
   <!-- Footer -->
   <footer class="site-footer">
     <p class="footer-logo">Golden Pride Hub</p>
@@ -117,6 +138,75 @@
     } else {
       initPreview();
     }
+  </script>
+
+  <script>
+async function loadScheduledUpdate() {
+  try {
+    const response = await fetch("update.json", {
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("Unable to load update.json");
+    }
+
+    const update = await response.json();
+
+    const releaseDateTime =
+      `${update.releaseDate}T${update.releaseTime}:00+08:00`;
+
+    const releaseTime = new Date(releaseDateTime);
+
+    document.getElementById("update-title").textContent =
+      update.updateName;
+
+    document.getElementById("update-description").textContent =
+      `Version ${update.version}`;
+
+    document.getElementById("update-version").textContent =
+      `UPDATE ${update.version}`;
+
+    function updateCountdown() {
+      const now = new Date();
+      const difference = releaseTime - now;
+
+      const countdown = document.getElementById("update-countdown");
+      const status = document.getElementById("update-status");
+
+      if (difference <= 0) {
+        countdown.textContent = "UPDATE IS NOW LIVE!";
+        status.textContent =
+          `${update.updateName} • Released ${update.releaseDate} ${update.releaseTime} PH`;
+        return;
+      }
+
+      const totalSeconds = Math.floor(difference / 1000);
+
+      const days = Math.floor(totalSeconds / 86400);
+      const hours = Math.floor((totalSeconds % 86400) / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      countdown.textContent =
+        `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      status.textContent =
+        `Releasing ${update.releaseDate} at ${update.releaseTime} PH`;
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+  } catch (error) {
+    console.error("Scheduled update error:", error);
+
+    document.getElementById("update-countdown").textContent =
+      "Update information unavailable.";
+  }
+}
+
+loadScheduledUpdate();
   </script>
 </body>
 </html>
