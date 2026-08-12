@@ -1,7 +1,6 @@
 /* ============================================================
    style.css — Golden Pride Hub
-   Core design system: variables, resets, typography, buttons,
-   glassmorphism, cards, animations, shared components.
+   Full Design System + Premium Glimmer Enhancement
    ============================================================ */
 
 /* ---------- Fonts ---------- */
@@ -48,7 +47,12 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-heading);
   font-weight: 700;
   line-height: 1.25;
@@ -75,7 +79,9 @@ button {
   background: none;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   font-family: var(--font-body);
 }
 
@@ -97,9 +103,11 @@ input, textarea, select {
   z-index: 9999;
   transition: opacity 0.4s ease;
 }
+
 #loading-screen.hide {
   opacity: 0;
 }
+
 .spinner {
   width: 48px;
   height: 48px;
@@ -108,8 +116,11 @@ input, textarea, select {
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
+
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ---------- Glassmorphism ---------- */
@@ -131,40 +142,54 @@ input, textarea, select {
   border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 0.95rem;
-  transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    background var(--transition);
   position: relative;
   overflow: hidden;
 }
+
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-soft));
+  background: linear-gradient(
+    135deg,
+    var(--color-gold),
+    var(--color-gold-soft)
+  );
   color: var(--color-black);
 }
+
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: var(--shadow-gold);
 }
+
 .btn-outline {
   background: transparent;
   border: 1.5px solid var(--color-gold);
   color: var(--color-gold);
 }
+
 .btn-outline:hover {
   background: rgba(255, 215, 0, 0.08);
   transform: translateY(-2px);
 }
+
 .btn-block {
   width: 100%;
 }
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none !important;
 }
+
 .btn-loading::after {
   content: "";
   width: 16px;
   height: 16px;
-  border: 2px solid rgba(0,0,0,0.3);
+  border: 2px solid rgba(0, 0, 0, 0.3);
   border-top-color: var(--color-black);
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -175,13 +200,18 @@ input, textarea, select {
 .btn::before {
   content: "";
   position: absolute;
-  width: 0; height: 0;
+  width: 0;
+  height: 0;
   border-radius: 50%;
-  background: rgba(255,255,255,0.4);
+  background: rgba(255, 255, 255, 0.4);
   transform: translate(-50%, -50%);
-  top: 50%; left: 50%;
-  transition: width 0.4s ease, height 0.4s ease;
+  top: 50%;
+  left: 50%;
+  transition:
+    width 0.4s ease,
+    height 0.4s ease;
 }
+
 .btn:active::before {
   width: 220px;
   height: 220px;
@@ -196,8 +226,11 @@ input, textarea, select {
   justify-content: center;
   color: var(--color-gold);
   background: rgba(255, 215, 0, 0.08);
-  transition: background var(--transition), transform var(--transition);
+  transition:
+    background var(--transition),
+    transform var(--transition);
 }
+
 .btn-icon:hover {
   background: rgba(255, 215, 0, 0.18);
   transform: scale(1.08);
@@ -208,17 +241,24 @@ input, textarea, select {
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   margin-bottom: 8px;
 }
+
 .section-subtitle {
   color: var(--color-gray);
   margin-bottom: 32px;
 }
-.text-gold { color: var(--color-gold); }
+
+.text-gold {
+  color: var(--color-gold);
+}
 
 /* ---------- Cards ---------- */
 .card {
   padding: 24px;
-  transition: transform var(--transition), box-shadow var(--transition);
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
 }
+
 .card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-gold);
@@ -234,6 +274,7 @@ input, textarea, select {
   flex-direction: column;
   gap: 10px;
 }
+
 .toast {
   display: flex;
   align-items: center;
@@ -245,24 +286,39 @@ input, textarea, select {
   color: var(--color-white);
   transform: translateX(120%);
   opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease;
   min-width: 260px;
-  box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
+
 .toast.show {
   transform: translateX(0);
   opacity: 1;
 }
-.toast-success i { color: #4ade80; }
-.toast-error i { color: #f87171; }
-.toast-warning i { color: var(--color-gold); }
-.toast-info i { color: #60a5fa; }
+
+.toast-success i {
+  color: #4ade80;
+}
+
+.toast-error i {
+  color: #f87171;
+}
+
+.toast-warning i {
+  color: var(--color-gold);
+}
+
+.toast-info i {
+  color: #60a5fa;
+}
 
 /* ---------- Confirmation Dialog ---------- */
 .confirm-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: rgba(0, 0, 0, 0.6);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -270,16 +326,22 @@ input, textarea, select {
   opacity: 0;
   transition: opacity 0.25s ease;
 }
-.confirm-overlay.show { opacity: 1; }
+
+.confirm-overlay.show {
+  opacity: 1;
+}
+
 .confirm-box {
   padding: 28px;
   max-width: 360px;
   text-align: center;
 }
+
 .confirm-box p {
   margin-bottom: 20px;
   font-size: 1.05rem;
 }
+
 .confirm-actions {
   display: flex;
   gap: 12px;
@@ -305,6 +367,7 @@ input, textarea, select {
   transition: all var(--transition);
   z-index: 999;
 }
+
 #scroll-top.visible {
   opacity: 1;
   pointer-events: auto;
@@ -323,19 +386,36 @@ input, textarea, select {
 .fade-in {
   animation: fadeIn 0.5s ease both;
 }
+
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
+
 .slide-in {
   animation: slideIn 0.5s ease both;
 }
+
 @keyframes slideIn {
-  from { opacity: 0; transform: translateX(-24px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-/* ---------- Navbar (public pages) ---------- */
+/* ---------- Navbar ---------- */
 .navbar {
   position: sticky;
   top: 0;
@@ -344,10 +424,12 @@ input, textarea, select {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: rgba(13,13,13,0.85);
+  background: rgba(13, 13, 13, 0.85);
   backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border);
 }
+
 .navbar-logo {
   display: flex;
   align-items: center;
@@ -356,31 +438,42 @@ input, textarea, select {
   font-weight: 800;
   font-size: 1.2rem;
 }
-.navbar-logo img { width: 36px; height: 36px; }
+
+.navbar-logo img {
+  width: 36px;
+  height: 36px;
+}
+
 .nav-menu {
   display: flex;
   align-items: center;
   gap: 28px;
 }
+
 .nav-menu a {
   font-weight: 500;
   color: var(--color-white);
   transition: color var(--transition);
   position: relative;
 }
-.nav-menu a:hover, .nav-menu a.active {
+
+.nav-menu a:hover,
+.nav-menu a.active {
   color: var(--color-gold);
 }
+
 .nav-actions {
   display: flex;
   gap: 12px;
 }
+
 .nav-toggle {
   display: none;
   flex-direction: column;
   gap: 5px;
   width: 28px;
 }
+
 .nav-toggle span {
   height: 2px;
   background: var(--color-gold);
@@ -396,12 +489,24 @@ input, textarea, select {
   text-align: center;
   padding: 60px 24px;
   background:
-    radial-gradient(circle at 20% 20%, rgba(255,215,0,0.08), transparent 40%),
-    radial-gradient(circle at 80% 70%, rgba(255,215,0,0.06), transparent 40%),
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 215, 0, 0.08),
+      transparent 40%
+    ),
+    radial-gradient(
+      circle at 80% 70%,
+      rgba(255, 215, 0, 0.06),
+      transparent 40%
+    ),
     var(--color-black);
   position: relative;
 }
-.hero-content { max-width: 720px; }
+
+.hero-content {
+  max-width: 720px;
+}
+
 .hero-eyebrow {
   color: var(--color-gold);
   text-transform: uppercase;
@@ -410,15 +515,18 @@ input, textarea, select {
   font-weight: 600;
   margin-bottom: 16px;
 }
+
 .hero h1 {
   font-size: clamp(2.2rem, 5vw, 3.6rem);
   margin-bottom: 18px;
 }
+
 .hero p {
   color: var(--color-gray);
   font-size: 1.1rem;
   margin-bottom: 32px;
 }
+
 .hero-actions {
   display: flex;
   gap: 16px;
@@ -426,10 +534,11 @@ input, textarea, select {
   flex-wrap: wrap;
 }
 
-/* ---------- About Section ---------- */
+/* ---------- About ---------- */
 .about-section {
   padding: 80px 0;
 }
+
 .about-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -444,6 +553,7 @@ input, textarea, select {
   border-top: 1px solid var(--color-border);
   color: var(--color-gray);
 }
+
 .site-footer .footer-logo {
   color: var(--color-gold);
   font-weight: 700;
@@ -455,7 +565,11 @@ input, textarea, select {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--color-gold), var(--color-gold-soft));
+  background: linear-gradient(
+    135deg,
+    var(--color-gold),
+    var(--color-gold-soft)
+  );
   color: var(--color-black);
   display: flex;
   align-items: center;
@@ -466,7 +580,8 @@ input, textarea, select {
 }
 
 /* ---------- Role Badges ---------- */
-.role-badge, .user-role-badge {
+.role-badge,
+.user-role-badge {
   display: inline-block;
   padding: 4px 12px;
   border-radius: 20px;
@@ -474,29 +589,42 @@ input, textarea, select {
   font-weight: 600;
   text-transform: capitalize;
 }
-.badge-admin { background: rgba(255,215,0,0.15); color: var(--color-gold); }
-.badge-member { background: rgba(255,255,255,0.1); color: var(--color-white); }
+
+.badge-admin {
+  background: rgba(255, 215, 0, 0.15);
+  color: var(--color-gold);
+}
+
+.badge-member {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-white);
+}
 
 /* ---------- Announcement Cards ---------- */
 .announcement-card {
   overflow: hidden;
 }
+
 .announcement-card img {
   width: 100%;
   height: 180px;
   object-fit: cover;
 }
+
 .announcement-card-body {
   padding: 20px;
 }
+
 .announcement-card-body h3 {
   margin-bottom: 8px;
 }
+
 .announcement-card-body p {
   color: var(--color-gray);
   margin-bottom: 14px;
   font-size: 0.92rem;
 }
+
 .announcement-meta {
   display: flex;
   gap: 16px;
@@ -504,13 +632,14 @@ input, textarea, select {
   font-size: 0.8rem;
   color: var(--color-gold);
 }
+
 .announcement-actions {
   display: flex;
   gap: 8px;
   margin-top: 14px;
 }
 
-/* ---------- Social: Likes & Comments ---------- */
+/* ---------- Social ---------- */
 .social-row {
   display: flex;
   gap: 10px;
@@ -518,6 +647,7 @@ input, textarea, select {
   padding-top: 14px;
   border-top: 1px solid var(--color-border);
 }
+
 .social-btn {
   display: flex;
   align-items: center;
@@ -528,21 +658,26 @@ input, textarea, select {
   border-radius: 8px;
   transition: all var(--transition);
 }
+
 .social-btn:hover {
   background: rgba(255, 215, 0, 0.08);
   color: var(--color-gold);
 }
+
 .social-btn.liked {
   color: #f87171;
 }
+
 .social-btn.liked i {
   color: #f87171;
 }
+
 .comment-thread {
   margin-top: 12px;
   padding-top: 12px;
   border-top: 1px solid var(--color-border);
 }
+
 .comment-list {
   max-height: 220px;
   overflow-y: auto;
@@ -551,37 +686,44 @@ input, textarea, select {
   gap: 10px;
   margin-bottom: 12px;
 }
+
 .comment-item {
   display: flex;
   gap: 10px;
 }
+
 .avatar-circle.small {
   width: 30px;
   height: 30px;
   font-size: 0.7rem;
   flex-shrink: 0;
 }
+
 .comment-body {
   background: rgba(255, 255, 255, 0.04);
   border-radius: 10px;
   padding: 8px 12px;
   flex: 1;
 }
+
 .comment-body strong {
   font-size: 0.78rem;
   color: var(--color-gold);
   display: block;
   margin-bottom: 2px;
 }
+
 .comment-body p {
   font-size: 0.85rem;
   margin: 0;
   color: var(--color-white);
 }
+
 .comment-form {
   display: flex;
   gap: 8px;
 }
+
 .comment-form input {
   flex: 1;
   background: rgba(255, 255, 255, 0.05);
@@ -591,6 +733,7 @@ input, textarea, select {
   color: var(--color-white);
   font-size: 0.85rem;
 }
+
 .comment-form button {
   width: 38px;
   height: 38px;
@@ -599,6 +742,7 @@ input, textarea, select {
   color: #000;
   flex-shrink: 0;
 }
+
 .empty-state.small {
   padding: 10px 0;
   font-size: 0.8rem;
@@ -609,9 +753,18 @@ input, textarea, select {
   display: grid;
   gap: 24px;
 }
-.grid-2 { grid-template-columns: repeat(2, 1fr); }
-.grid-3 { grid-template-columns: repeat(3, 1fr); }
-.grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+.grid-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.grid-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.grid-4 {
+  grid-template-columns: repeat(4, 1fr);
+}
 
 /* ---------- Pagination ---------- */
 .pagination {
@@ -620,6 +773,7 @@ input, textarea, select {
   gap: 8px;
   margin-top: 32px;
 }
+
 .page-btn {
   width: 36px;
   height: 36px;
@@ -628,23 +782,27 @@ input, textarea, select {
   background: var(--color-black-elevated);
   transition: var(--transition);
 }
-.page-btn.active, .page-btn:hover {
+
+.page-btn.active,
+.page-btn:hover {
   background: var(--color-gold);
   color: var(--color-black);
 }
 
-/* ---------- Search / Filter Bar ---------- */
+/* ---------- Search / Filter ---------- */
 .toolbar {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
   margin-bottom: 28px;
 }
+
 .search-box {
   flex: 1;
   min-width: 220px;
   position: relative;
 }
+
 .search-box input {
   width: 100%;
   padding: 12px 16px 12px 40px;
@@ -653,6 +811,7 @@ input, textarea, select {
   border: 1px solid var(--color-border);
   color: var(--color-white);
 }
+
 .search-box i {
   position: absolute;
   left: 14px;
@@ -660,6 +819,7 @@ input, textarea, select {
   transform: translateY(-50%);
   color: var(--color-gray);
 }
+
 .select-filter {
   padding: 12px 16px;
   border-radius: var(--radius-sm);
@@ -672,7 +832,7 @@ input, textarea, select {
 .lightbox {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.92);
+  background: rgba(0, 0, 0, 0.92);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -682,36 +842,60 @@ input, textarea, select {
   transition: opacity 0.3s ease;
   padding: 24px;
 }
-.lightbox.show { opacity: 1; }
-.lightbox img { max-height: 80vh; border-radius: var(--radius-md); }
-.lightbox-caption { color: var(--color-white); margin-top: 16px; }
+
+.lightbox.show {
+  opacity: 1;
+}
+
+.lightbox img {
+  max-height: 80vh;
+  border-radius: var(--radius-md);
+}
+
+.lightbox-caption {
+  color: var(--color-white);
+  margin-top: 16px;
+}
+
 .lightbox-close {
   position: absolute;
-  top: 24px; right: 32px;
+  top: 24px;
+  right: 32px;
   font-size: 1.6rem;
   color: var(--color-gold);
   cursor: pointer;
 }
 
-/* ---------- Gallery Grid ---------- */
+/* ---------- Gallery ---------- */
 .gallery-item {
   border-radius: var(--radius-md);
   overflow: hidden;
   cursor: pointer;
   position: relative;
 }
+
 .gallery-item img {
   width: 100%;
   height: 220px;
   object-fit: cover;
   transition: transform 0.4s ease;
 }
-.gallery-item:hover img { transform: scale(1.06); }
+
+.gallery-item:hover img {
+  transform: scale(1.06);
+}
+
 .gallery-item figcaption {
   position: absolute;
-  bottom: 0; left: 0; right: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
   padding: 10px 12px;
-  background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.85),
+    transparent
+  );
   font-size: 0.85rem;
 }
 
@@ -722,6 +906,7 @@ input, textarea, select {
   padding: 20px;
   align-items: flex-start;
 }
+
 .event-date-badge {
   background: var(--color-gold);
   color: var(--color-black);
@@ -730,9 +915,26 @@ input, textarea, select {
   text-align: center;
   min-width: 64px;
 }
-.event-date-badge .day { display: block; font-size: 1.3rem; font-weight: 800; }
-.event-date-badge .month { display: block; font-size: 0.75rem; text-transform: uppercase; }
-.event-location { color: var(--color-gray); font-size: 0.85rem; display: inline-flex; gap: 6px; margin-top: 8px; }
+
+.event-date-badge .day {
+  display: block;
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.event-date-badge .month {
+  display: block;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+.event-location {
+  color: var(--color-gray);
+  font-size: 0.85rem;
+  display: inline-flex;
+  gap: 6px;
+  margin-top: 8px;
+}
 
 .event-rsvp-row {
   display: flex;
@@ -741,10 +943,12 @@ input, textarea, select {
   gap: 12px;
   margin-top: 14px;
 }
+
 .rsvp-count {
   color: var(--color-gray);
   font-size: 0.82rem;
 }
+
 .rsvp-btn {
   width: auto;
   padding: 6px 14px;
@@ -754,6 +958,7 @@ input, textarea, select {
   color: var(--color-gold);
   background: transparent;
 }
+
 .rsvp-btn.rsvp-active {
   background: var(--color-gold);
   color: var(--color-black);
@@ -764,12 +969,15 @@ input, textarea, select {
   text-align: center;
   padding: 28px 20px;
 }
+
 .achievement-card img {
-  width: 72px; height: 72px;
+  width: 72px;
+  height: 72px;
   object-fit: cover;
   border-radius: 50%;
   margin: 0 auto 14px;
 }
+
 .achievement-icon {
   font-size: 2.4rem;
   color: var(--color-gold);
@@ -781,16 +989,18 @@ input, textarea, select {
   text-align: center;
   padding: 24px;
 }
+
 .member-email {
   color: var(--color-gray);
   font-size: 0.85rem;
   margin-top: 6px;
 }
 
-/* ---------- Presence / Online Status ---------- */
+/* ---------- Presence ---------- */
 .avatar-circle {
   position: relative;
 }
+
 .status-dot {
   position: absolute;
   bottom: 2px;
@@ -800,20 +1010,171 @@ input, textarea, select {
   border-radius: 50%;
   border: 2px solid var(--color-black-elevated);
 }
-.status-online { background: #4ade80; }
-.status-offline { background: #6b6b6b; }
+
+.status-online {
+  background: #4ade80;
+}
+
+.status-offline {
+  background: #6b6b6b;
+}
+
 .member-status {
   font-size: 0.8rem;
   margin-top: 8px;
 }
-.text-online { color: #4ade80; }
-.text-offline { color: var(--color-gray); }
+
+.text-online {
+  color: #4ade80;
+}
+
+.text-offline {
+  color: var(--color-gray);
+}
 
 .member-card .btn-sm {
   margin-top: 12px;
   display: inline-flex;
 }
+
 .btn-sm {
   padding: 6px 14px;
   font-size: 0.8rem;
 }
+
+
+/* ============================================================
+   PREMIUM GLIMMER DESIGN
+   ============================================================ */
+
+/* ---------- Ambient Gold Glow ---------- */
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: -30%;
+  pointer-events: none;
+  z-index: -1;
+  background:
+    radial-gradient(
+      circle at 20% 20%,
+      rgba(255, 215, 0, 0.055),
+      transparent 24%
+    ),
+    radial-gradient(
+      circle at 80% 65%,
+      rgba(255, 215, 0, 0.045),
+      transparent 25%
+    );
+  animation: ambientGlow 10s ease-in-out infinite alternate;
+}
+
+@keyframes ambientGlow {
+  from {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+
+  to {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+/* ---------- Premium Glass ---------- */
+
+.glass,
+.card,
+.announcement-card,
+.event-card,
+.achievement-card,
+.member-card {
+  position: relative;
+  overflow: hidden;
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.035);
+}
+
+/* ---------- Glimmer Sweep ---------- */
+
+.glass::after,
+.card::after,
+.announcement-card::after,
+.event-card::after,
+.achievement-card::after,
+.member-card::after {
+  content: "";
+  position: absolute;
+  top: -120%;
+  left: -70%;
+  width: 45%;
+  height: 340%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 215, 0, 0.035),
+    rgba(255, 255, 255, 0.09),
+    rgba(255, 215, 0, 0.035),
+    transparent
+  );
+  transform: rotate(18deg);
+  pointer-events: none;
+  transition: left 0.8s ease;
+}
+
+.glass:hover::after,
+.card:hover::after,
+.announcement-card:hover::after,
+.event-card:hover::after,
+.achievement-card:hover::after,
+.member-card:hover::after {
+  left: 135%;
+}
+
+/* ---------- Gold Edge Glow ---------- */
+
+.card:hover,
+.announcement-card:hover,
+.event-card:hover,
+.achievement-card:hover,
+.member-card:hover {
+  border-color: rgba(255, 215, 0, 0.32);
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.35),
+    0 0 22px rgba(255, 215, 0, 0.09);
+}
+
+/* ---------- Navbar Glimmer ---------- */
+
+.navbar {
+  box-shadow:
+    0 4px 25px rgba(0, 0, 0, 0.35),
+    0 1px 14px rgba(255, 215, 0, 0.035);
+}
+
+.navbar::after {
+  content: "";
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 215, 0, 0.7),
+    transparent
+  );
+  opacity: 0.5;
+}
+
+/* ---------- Logo Glow ---------- */
+
+.navbar-logo img {
+  filter:
+    drop-shadow(0 0 5px rgba(255, 215, 0, 0.25))
+    drop-shadow(0 0 12px rgba(255, 215, 0, 0.08));
+  transition:
+    filter 0.3s ease,
+  
