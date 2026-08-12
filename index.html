@@ -213,5 +213,47 @@ async function loadScheduledUpdate() {
 
 loadScheduledUpdate();
   </script>
+
+
+  <script>
+(async function checkForNewVersion() {
+  const CHECK_INTERVAL = 10000; // 10 seconds
+
+  let currentVersion = null;
+
+  async function checkVersion() {
+    try {
+      const response = await fetch("version.json?ts=" + Date.now(), {
+        cache: "no-store"
+      });
+
+      if (!response.ok) return;
+
+      const data = await response.json();
+
+      if (currentVersion === null) {
+        currentVersion = data.version;
+        return;
+      }
+
+      if (data.version !== currentVersion) {
+        console.log(
+          `New version detected: ${currentVersion} → ${data.version}`
+        );
+
+        window.location.reload();
+      }
+
+    } catch (error) {
+      console.log("Version check failed:", error);
+    }
+  }
+
+  await checkVersion();
+
+  setInterval(checkVersion, CHECK_INTERVAL);
+})();
+  </script>
+  
 </body>
 </html>
