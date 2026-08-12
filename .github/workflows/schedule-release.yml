@@ -2,7 +2,7 @@ name: Scheduled Release
 
 on:
   schedule:
-    - cron: "*/10 * * * *"
+    - cron: "* * * * *"
   workflow_dispatch:
 
 permissions:
@@ -49,10 +49,12 @@ jobs:
           if now >= release_time:
               with open("/tmp/release-ready", "w") as f:
                   f.write("yes")
+
               print("RELEASE READY")
           else:
               with open("/tmp/release-ready", "w") as f:
                   f.write("no")
+
               print("NOT YET RELEASED")
           PY
 
@@ -71,8 +73,8 @@ jobs:
 
           git push origin main
 
-      - name: Wait for scheduled release
+      - name: Wait for release time
         if: steps.release.outputs.ready == 'no'
         run: |
           echo "Update is not ready yet."
-          echo "Next scheduled check will try again."
+          echo "Waiting for the next scheduled check."
