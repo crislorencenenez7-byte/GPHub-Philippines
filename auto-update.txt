@@ -1,2 +1,3 @@
-UPDATE 1.0 IS NOW LIVE!
-Test Update
+UPDATE 1.1 IS NOW LIVE!
+New Features
+Released: 2026-08-12 10:40 PH
