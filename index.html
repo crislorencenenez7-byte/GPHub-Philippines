@@ -143,9 +143,9 @@
   <script>
 async function loadScheduledUpdate() {
   try {
-    const response = await fetch("update.json", {
-      cache: "no-store"
-    });
+    const response = await fetch(
+  "https://raw.githubusercontent.com/crislorencenenez7-byte/GPHub-Philippines/update-1.4/update.json?cache=" + Date.now()
+    );
 
     if (!response.ok) {
       throw new Error("Unable to load update.json");
