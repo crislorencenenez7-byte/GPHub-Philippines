@@ -1,6 +1,8 @@
 name: Scheduled Update
 
 on:
+  schedule:
+    - cron: "25 2 12 8 *"
   workflow_dispatch:
 
 jobs:
@@ -16,12 +18,12 @@ jobs:
 
       - name: Update file
         run: |
-          echo "Updated automatically by GitHub Actions!" > auto-update.txt
+          echo "UPDATE 1.5 IS NOW LIVE!" > auto-update.txt
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add auto-update.txt
-          git commit -m "Automatic update" || echo "No changes to commit"
+          git commit -m "Release Update 1.5" || echo "No changes to commit"
           git push
