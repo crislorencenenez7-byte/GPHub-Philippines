@@ -16,14 +16,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Update file
+      - name: Read update information
+        id: update
         run: |
-          echo "UPDATE 1.5 IS NOW LIVE!" > auto-update.txt
+          VERSION=$(python -c "import json; print(json.load(open('update.json'))['version'])")
+          NAME=$(python -c "import json; print(json.load(open('update.json'))['updateName'])")
+
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "NAME=$NAME" >> "$GITHUB_OUTPUT"
+
+      - name: Create update file
+        run: |
+          echo "UPDATE ${{ steps.update.outputs.VERSION }} IS NOW LIVE!" > auto-update.txt
+          echo "${{ steps.update.outputs.NAME }}" >> auto-update.txt
 
       - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add auto-update.txt
-          git commit -m "Release Update 1.5" || echo "No changes to commit"
+          git commit -m "Release ${{ steps.update.outputs.VERSION }}" || echo "No changes to commit"
           git push
