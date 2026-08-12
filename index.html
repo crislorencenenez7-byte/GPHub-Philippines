@@ -180,7 +180,7 @@ async function loadScheduledUpdate() {
       const status = document.getElementById("update-status");
 
       if (difference <= 0) {
-        countdown.textContent = "UPDATE IS NOW LIVE! Wait for restart and new features come...";
+        countdown.textContent = "UPDATE IS NOW LIVE! Wait for reload and new features come...";
         status.textContent =
           `${update.updateName} • Released ${update.releaseDate} ${update.releaseTime} PH`;
         return;
