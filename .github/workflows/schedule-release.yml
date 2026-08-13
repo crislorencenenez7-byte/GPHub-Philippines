@@ -57,10 +57,12 @@ jobs:
           if now >= release_time:
               with open("/tmp/release-ready", "w") as f:
                   f.write("yes")
+
               print("RELEASE READY")
           else:
               with open("/tmp/release-ready", "w") as f:
                   f.write("no")
+
               print("NOT YET RELEASED")
           PY
 
@@ -84,37 +86,29 @@ jobs:
           echo "Starting scheduled release..."
           echo "================================="
 
-          # Read release information from update branch.
+          # Get release information
           git show origin/update-1.4:update.json > /tmp/update.json
 
           VERSION=$(python -c "import json; print(json.load(open('/tmp/update.json'))['version'])")
+
           UPDATE_NAME=$(python -c "import json; print(json.load(open('/tmp/update.json'))['updateName'])")
 
           echo "Releasing version: $VERSION"
           echo "Update: $UPDATE_NAME"
 
-          # ------------------------------------------------
-          # Merge the release branch.
-          #
-          # version.json is intentionally taken from MAIN
-          # during the merge because the workflow creates
-          # the correct version.json below.
-          # ------------------------------------------------
-
+          # Merge release branch.
+          # Keep main's version.json during merge.
           git merge origin/update-1.4 \
             --no-edit \
             -X ours \
             --no-commit
 
-          # Remove release-only metadata from main.
+          # Remove update.json from main.
           if [ -f update.json ]; then
             git rm -f update.json
           fi
 
-          # ------------------------------------------------
-          # Create the live version.json.
-          # ------------------------------------------------
-
+          # Create the new version.json.
           RELEASED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
           cat > version.json <<EOF
@@ -127,10 +121,8 @@ jobs:
 
           git add -A
 
-          # Commit everything together.
           git commit -m "Release $VERSION"
 
-          # Push release to main.
           git push origin main
 
           echo "================================="
