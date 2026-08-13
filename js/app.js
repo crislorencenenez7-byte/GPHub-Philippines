@@ -83,60 +83,24 @@
    INSTALL APP
    ============================================================ */
 
-let deferredPrompt = null;
+const BASE_PATH = "/GPHub-Philippines/";
 
-
-/*
-   Get Install button after DOM is ready.
-*/
-function setupInstallButton() {
-
-  const installBtn =
-    document.getElementById("install-app-btn");
-
-
-  // If this page doesn't contain the button,
-  // simply do nothing.
-  if (!installBtn) {
-
-    console.log(
-      "Install button not found on this page."
-    );
-
-    return;
-  }
-
-
-  // Hide button by default
-  installBtn.hidden = true;
-
-
-  /*
-     Chrome / Edge / Android
-     fires this when the website is installable.
-  */
-  window.addEventListener(
-    "beforeinstallprompt",
-    (event) => {
-
-      console.log(
-        "PWA install prompt available."
-      );
-
-
-      // Prevent automatic browser prompt
-      event.preventDefault();
-
-
-      // Save event for later
-      deferredPrompt = event;
-
-
-      // Show our custom Install App button
-      installBtn.hidden = false;
-
-    }
-  );
+const APP_SHELL = [
+  `${BASE_PATH}`,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}login.html`,
+  `${BASE_PATH}register.html`,
+  `${BASE_PATH}dashboard.html`,
+  `${BASE_PATH}css/style.css`,
+  `${BASE_PATH}css/auth.css`,
+  `${BASE_PATH}css/dashboard.css`,
+  `${BASE_PATH}css/responsive.css`,
+  `${BASE_PATH}js/app.js`,
+  `${BASE_PATH}js/firebase-config.js`,
+  `${BASE_PATH}js/auth.js`,
+  `${BASE_PATH}js/dashboard.js`,
+  `${BASE_PATH}manifest.json`
+];
 
 
   /*
