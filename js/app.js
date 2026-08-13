@@ -80,32 +80,73 @@
 
 
 /* ============================================================
-   INSTALL APP
+   INSTALL APP / PWA
    ============================================================ */
 
-const BASE_PATH = "/GPHub-Philippines/";
+let deferredPrompt = null;
 
-const APP_SHELL = [
-  `${BASE_PATH}`,
-  `${BASE_PATH}index.html`,
-  `${BASE_PATH}login.html`,
-  `${BASE_PATH}register.html`,
-  `${BASE_PATH}dashboard.html`,
-  `${BASE_PATH}css/style.css`,
-  `${BASE_PATH}css/auth.css`,
-  `${BASE_PATH}css/dashboard.css`,
-  `${BASE_PATH}css/responsive.css`,
-  `${BASE_PATH}js/app.js`,
-  `${BASE_PATH}js/firebase-config.js`,
-  `${BASE_PATH}js/auth.js`,
-  `${BASE_PATH}js/dashboard.js`,
-  `${BASE_PATH}manifest.json`
-];
+
+/*
+   Setup custom Install App button.
+*/
+
+function setupInstallButton() {
+
+  const installBtn =
+    document.getElementById(
+      "install-app-btn"
+    );
+
+
+  // Button does not exist on this page
+  if (!installBtn) {
+
+    console.log(
+      "Install App button not found on this page."
+    );
+
+    return;
+
+  }
+
+
+  // Hide until browser says installation is available
+  installBtn.hidden = true;
+
+
+  /*
+     Chrome/Edge/Android fires this event
+     when the PWA is installable.
+  */
+
+  window.addEventListener(
+    "beforeinstallprompt",
+    (event) => {
+
+      console.log(
+        "PWA install prompt available."
+      );
+
+
+      // Prevent automatic browser prompt
+      event.preventDefault();
+
+
+      // Save event for our custom button
+      deferredPrompt = event;
+
+
+      // Show Install App button
+      installBtn.hidden = false;
+
+    }
+  );
 
 
   /*
      User clicks Install App
   */
+
   installBtn.addEventListener(
     "click",
     async () => {
@@ -118,14 +159,15 @@ const APP_SHELL = [
         );
 
         return;
+
       }
 
 
-      // Show browser's native install prompt
-      deferredPrompt.prompt();
-
-
       try {
+
+        // Show browser's native install prompt
+        deferredPrompt.prompt();
+
 
         const result =
           await deferredPrompt.userChoice;
@@ -143,15 +185,16 @@ const APP_SHELL = [
           error
         );
 
+      } finally {
+
+        // Prompt can only be used once
+        deferredPrompt = null;
+
+
+        // Hide button
+        installBtn.hidden = true;
+
       }
-
-
-      // Prompt can only be used once
-      deferredPrompt = null;
-
-
-      // Hide our button
-      installBtn.hidden = true;
 
     }
   );
@@ -160,6 +203,7 @@ const APP_SHELL = [
   /*
      Fired after successful installation.
   */
+
   window.addEventListener(
     "appinstalled",
     () => {
@@ -194,6 +238,7 @@ const APP_SHELL = [
 /*
    Setup install button after HTML is loaded.
 */
+
 if (document.readyState === "loading") {
 
   document.addEventListener(
@@ -312,8 +357,10 @@ function showToast(
      Use textContent for user-controlled
      message instead of directly trusting HTML.
   */
+
   const icon =
     document.createElement("i");
+
 
   icon.className =
     `fa-solid ${
@@ -324,10 +371,13 @@ function showToast(
   const text =
     document.createElement("span");
 
-  text.textContent = message;
+
+  text.textContent =
+    message;
 
 
   toast.appendChild(icon);
+
   toast.appendChild(text);
 
 
