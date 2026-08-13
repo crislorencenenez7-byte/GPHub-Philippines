@@ -31,13 +31,23 @@
 
   // Register service worker
   if ("serviceWorker" in navigator) {
+
     window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").catch((err) => {
-        console.warn("Service worker registration failed:", err);
-      });
+
+        navigator.serviceWorker.register(
+            "/GPHub-Philippines/sw.js",
+            {
+                scope: "/GPHub-Philippines/"
+            }
+        )
+        .then(() => {
+            console.log("SW Registered");
+        })
+        .catch(console.error);
+
     });
-  }
-})();
+
+}
 
 /* ---------- Loading Screen ---------- */
 window.addEventListener("load", () => {
