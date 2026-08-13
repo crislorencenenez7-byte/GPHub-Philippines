@@ -1,6 +1,6 @@
 /* ============================================================
    style.css — Golden Pride Hub
-   Full Design System + Premium Glimmer Enhancement
+   Core design system + Premium Gold Glimmer Design
    ============================================================ */
 
 /* ---------- Fonts ---------- */
@@ -11,11 +11,16 @@
   --color-black: #0d0d0d;
   --color-black-soft: #161616;
   --color-black-elevated: #1c1c1c;
+
   --color-gold: #ffd700;
   --color-gold-soft: #e6c200;
+  --color-gold-bright: #ffe86b;
+
   --color-white: #ffffff;
   --color-gray: #a3a3a3;
+
   --color-border: rgba(255, 215, 0, 0.15);
+  --color-border-strong: rgba(255, 215, 0, 0.28);
 
   --font-heading: "Poppins", sans-serif;
   --font-body: "Inter", sans-serif;
@@ -24,7 +29,12 @@
   --radius-md: 14px;
   --radius-lg: 22px;
 
-  --shadow-gold: 0 8px 24px rgba(255, 215, 0, 0.12);
+  --shadow-gold:
+    0 8px 24px rgba(255, 215, 0, 0.12);
+
+  --shadow-gold-strong:
+    0 12px 35px rgba(255, 215, 0, 0.18);
+
   --transition: 0.25s ease;
 }
 
@@ -41,7 +51,18 @@ html {
 
 body {
   font-family: var(--font-body);
-  background: var(--color-black);
+  background:
+    radial-gradient(
+      circle at 15% 10%,
+      rgba(255, 215, 0, 0.035),
+      transparent 30%
+    ),
+    radial-gradient(
+      circle at 85% 80%,
+      rgba(255, 215, 0, 0.03),
+      transparent 32%
+    ),
+    var(--color-black);
   color: var(--color-white);
   line-height: 1.6;
   overflow-x: hidden;
@@ -92,7 +113,10 @@ select {
   padding: 0 24px;
 }
 
-/* ---------- Loading Screen ---------- */
+/* ============================================================
+   Loading Screen
+   ============================================================ */
+
 #loading-screen {
   position: fixed;
   inset: 0;
@@ -106,6 +130,7 @@ select {
 
 #loading-screen.hide {
   opacity: 0;
+  pointer-events: none;
 }
 
 .spinner {
@@ -123,45 +148,76 @@ select {
   }
 }
 
-/* ---------- Glassmorphism ---------- */
+/* ============================================================
+   Glassmorphism
+   ============================================================ */
+
 .glass {
-  background: rgba(28, 28, 28, 0.6);
+  background:
+    linear-gradient(
+      145deg,
+      rgba(255, 255, 255, 0.055),
+      rgba(28, 28, 28, 0.62)
+    );
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 10px 35px rgba(0, 0, 0, 0.28);
+
+  position: relative;
+  overflow: hidden;
 }
 
-/* ---------- Buttons ---------- */
+/* ============================================================
+   Buttons
+   ============================================================ */
+
 .btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
+
   padding: 13px 28px;
+
   border-radius: var(--radius-sm);
+
   font-weight: 600;
   font-size: 0.95rem;
+
   transition:
     transform var(--transition),
     box-shadow var(--transition),
     background var(--transition);
+
   position: relative;
   overflow: hidden;
 }
 
 .btn-primary {
-  background: linear-gradient(
-    135deg,
-    var(--color-gold),
-    var(--color-gold-soft)
-  );
+  background:
+    linear-gradient(
+      135deg,
+      var(--color-gold),
+      var(--color-gold-soft)
+    );
+
   color: var(--color-black);
+
+  box-shadow:
+    0 5px 18px rgba(255, 215, 0, 0.12);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: var(--shadow-gold);
+
+  box-shadow:
+    0 8px 28px rgba(255, 215, 0, 0.25),
+    0 0 18px rgba(255, 215, 0, 0.12);
 }
 
 .btn-outline {
@@ -173,6 +229,9 @@ select {
 .btn-outline:hover {
   background: rgba(255, 215, 0, 0.08);
   transform: translateY(-2px);
+
+  box-shadow:
+    0 0 18px rgba(255, 215, 0, 0.12);
 }
 
 .btn-block {
@@ -187,26 +246,39 @@ select {
 
 .btn-loading::after {
   content: "";
+
   width: 16px;
   height: 16px;
+
   border: 2px solid rgba(0, 0, 0, 0.3);
   border-top-color: var(--color-black);
+
   border-radius: 50%;
+
   animation: spin 0.7s linear infinite;
+
   margin-left: 6px;
 }
 
-/* Ripple effect */
+/* ---------- Button Ripple ---------- */
+
 .btn::before {
   content: "";
+
   position: absolute;
+
   width: 0;
   height: 0;
+
   border-radius: 50%;
+
   background: rgba(255, 255, 255, 0.4);
+
   transform: translate(-50%, -50%);
+
   top: 50%;
   left: 50%;
+
   transition:
     width 0.4s ease,
     height 0.4s ease;
@@ -220,12 +292,16 @@ select {
 .btn-icon {
   width: 36px;
   height: 36px;
+
   border-radius: 50%;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
   color: var(--color-gold);
   background: rgba(255, 215, 0, 0.08);
+
   transition:
     background var(--transition),
     transform var(--transition);
@@ -236,7 +312,10 @@ select {
   transform: scale(1.08);
 }
 
-/* ---------- Section Headings ---------- */
+/* ============================================================
+   Section Headings
+   ============================================================ */
+
 .section-title {
   font-size: clamp(1.6rem, 3vw, 2.4rem);
   margin-bottom: 8px;
@@ -249,27 +328,89 @@ select {
 
 .text-gold {
   color: var(--color-gold);
+
+  text-shadow:
+    0 0 10px rgba(255, 215, 0, 0.18),
+    0 0 24px rgba(255, 215, 0, 0.08);
 }
 
-/* ---------- Cards ---------- */
+/* ============================================================
+   Cards
+   ============================================================ */
+
 .card {
   padding: 24px;
+
+  position: relative;
+  overflow: hidden;
+
   transition:
     transform var(--transition),
-    box-shadow var(--transition);
+    box-shadow var(--transition),
+    border-color var(--transition);
 }
 
 .card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-gold);
+  transform: translateY(-5px);
+
+  border-color: var(--color-border-strong);
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.4),
+    0 0 22px rgba(255, 215, 0, 0.08);
 }
 
-/* ---------- Toasts ---------- */
+/* ---------- Card Glimmer ---------- */
+
+.card::before,
+.announcement-card::before,
+.event-card::before,
+.achievement-card::before,
+.member-card::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: -120%;
+
+  width: 55%;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      110deg,
+      transparent,
+      rgba(255, 215, 0, 0.08),
+      transparent
+    );
+
+  transform: skewX(-18deg);
+
+  pointer-events: none;
+
+  transition: left 0.8s ease;
+}
+
+.card:hover::before,
+.announcement-card:hover::before,
+.event-card:hover::before,
+.achievement-card:hover::before,
+.member-card:hover::before {
+  left: 140%;
+}
+
+/* ============================================================
+   Toasts
+   ============================================================ */
+
 #toast-container {
   position: fixed;
   bottom: 24px;
   right: 24px;
+
   z-index: 10000;
+
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -279,18 +420,28 @@ select {
   display: flex;
   align-items: center;
   gap: 10px;
+
   padding: 14px 18px;
+
   border-radius: var(--radius-sm);
+
   background: var(--color-black-elevated);
+
   border: 1px solid var(--color-border);
+
   color: var(--color-white);
+
   transform: translateX(120%);
   opacity: 0;
+
   transition:
     transform 0.3s ease,
     opacity 0.3s ease;
+
   min-width: 260px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
 .toast.show {
@@ -314,16 +465,24 @@ select {
   color: #60a5fa;
 }
 
-/* ---------- Confirmation Dialog ---------- */
+/* ============================================================
+   Confirmation Dialog
+   ============================================================ */
+
 .confirm-overlay {
   position: fixed;
   inset: 0;
+
   background: rgba(0, 0, 0, 0.6);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   z-index: 10001;
+
   opacity: 0;
+
   transition: opacity 0.25s ease;
 }
 
@@ -348,24 +507,40 @@ select {
   justify-content: center;
 }
 
-/* ---------- Scroll To Top ---------- */
+/* ============================================================
+   Scroll To Top
+   ============================================================ */
+
 #scroll-top {
   position: fixed;
+
   bottom: 24px;
   left: 24px;
+
   width: 44px;
   height: 44px;
+
   border-radius: 50%;
+
   background: var(--color-gold);
   color: var(--color-black);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   opacity: 0;
+
   pointer-events: none;
+
   transform: translateY(20px);
+
   transition: all var(--transition);
+
   z-index: 999;
+
+  box-shadow:
+    0 5px 20px rgba(255, 215, 0, 0.15);
 }
 
 #scroll-top.visible {
@@ -374,15 +549,33 @@ select {
   transform: translateY(0);
 }
 
-/* ---------- Empty States ---------- */
+#scroll-top:hover {
+  box-shadow:
+    0 8px 25px rgba(255, 215, 0, 0.3);
+}
+
+/* ============================================================
+   Empty States
+   ============================================================ */
+
 .empty-state {
   text-align: center;
   color: var(--color-gray);
+
   padding: 40px 0;
+
   grid-column: 1 / -1;
 }
 
-/* ---------- Animations ---------- */
+.empty-state.small {
+  padding: 10px 0;
+  font-size: 0.8rem;
+}
+
+/* ============================================================
+   Animations
+   ============================================================ */
+
 .fade-in {
   animation: fadeIn 0.5s ease both;
 }
@@ -415,26 +608,54 @@ select {
   }
 }
 
-/* ---------- Navbar ---------- */
+@keyframes goldPulse {
+  0%,
+  100% {
+    text-shadow:
+      0 0 6px rgba(255, 215, 0, 0.12);
+  }
+
+  50% {
+    text-shadow:
+      0 0 12px rgba(255, 215, 0, 0.3),
+      0 0 24px rgba(255, 215, 0, 0.08);
+  }
+}
+
+/* ============================================================
+   Navbar
+   ============================================================ */
+
 .navbar {
   position: sticky;
   top: 0;
+
   z-index: 500;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   padding: 16px 24px;
+
   background: rgba(13, 13, 13, 0.85);
+
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
+
   border-bottom: 1px solid var(--color-border);
+
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.25);
 }
 
 .navbar-logo {
   display: flex;
   align-items: center;
   gap: 10px;
+
   font-family: var(--font-heading);
+
   font-weight: 800;
   font-size: 1.2rem;
 }
@@ -442,6 +663,10 @@ select {
 .navbar-logo img {
   width: 36px;
   height: 36px;
+}
+
+.navbar-logo .text-gold {
+  animation: goldPulse 3s ease-in-out infinite;
 }
 
 .nav-menu {
@@ -452,8 +677,11 @@ select {
 
 .nav-menu a {
   font-weight: 500;
+
   color: var(--color-white);
+
   transition: color var(--transition);
+
   position: relative;
 }
 
@@ -469,25 +697,36 @@ select {
 
 .nav-toggle {
   display: none;
+
   flex-direction: column;
   gap: 5px;
+
   width: 28px;
 }
 
 .nav-toggle span {
   height: 2px;
+
   background: var(--color-gold);
+
   transition: var(--transition);
 }
 
-/* ---------- Hero ---------- */
+/* ============================================================
+   Hero
+   ============================================================ */
+
 .hero {
   min-height: 90vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   text-align: center;
+
   padding: 60px 24px;
+
   background:
     radial-gradient(
       circle at 20% 20%,
@@ -500,93 +739,180 @@ select {
       transparent 40%
     ),
     var(--color-black);
+
   position: relative;
+
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+
+  position: absolute;
+
+  width: 320px;
+  height: 320px;
+
+  border-radius: 50%;
+
+  background: rgba(255, 215, 0, 0.035);
+
+  filter: blur(80px);
+
+  pointer-events: none;
+
+  animation:
+    heroGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes heroGlow {
+  from {
+    transform: translate(-80px, -20px) scale(0.9);
+    opacity: 0.5;
+  }
+
+  to {
+    transform: translate(80px, 30px) scale(1.15);
+    opacity: 1;
+  }
 }
 
 .hero-content {
   max-width: 720px;
+
+  position: relative;
+  z-index: 1;
 }
 
 .hero-eyebrow {
   color: var(--color-gold);
+
   text-transform: uppercase;
+
   letter-spacing: 2px;
+
   font-size: 0.8rem;
+
   font-weight: 600;
+
   margin-bottom: 16px;
 }
 
 .hero h1 {
   font-size: clamp(2.2rem, 5vw, 3.6rem);
+
   margin-bottom: 18px;
 }
 
 .hero p {
   color: var(--color-gray);
+
   font-size: 1.1rem;
+
   margin-bottom: 32px;
 }
 
 .hero-actions {
   display: flex;
+
   gap: 16px;
+
   justify-content: center;
+
   flex-wrap: wrap;
 }
 
-/* ---------- About ---------- */
+/* ============================================================
+   About Section
+   ============================================================ */
+
 .about-section {
   padding: 80px 0;
 }
 
 .about-grid {
   display: grid;
+
   grid-template-columns: 1fr 1fr;
+
   gap: 48px;
+
   align-items: center;
 }
 
-/* ---------- Footer ---------- */
+/* ============================================================
+   Footer
+   ============================================================ */
+
 .site-footer {
   padding: 40px 24px;
+
   text-align: center;
+
   border-top: 1px solid var(--color-border);
+
   color: var(--color-gray);
 }
 
 .site-footer .footer-logo {
   color: var(--color-gold);
+
   font-weight: 700;
+
   margin-bottom: 8px;
+
+  text-shadow:
+    0 0 12px rgba(255, 215, 0, 0.15);
 }
 
-/* ---------- Avatar ---------- */
+/* ============================================================
+   Avatar
+   ============================================================ */
+
 .avatar-circle {
   width: 64px;
   height: 64px;
+
   border-radius: 50%;
-  background: linear-gradient(
-    135deg,
-    var(--color-gold),
-    var(--color-gold-soft)
-  );
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--color-gold),
+      var(--color-gold-soft)
+    );
+
   color: var(--color-black);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   font-weight: 700;
   font-size: 1.1rem;
+
   margin: 0 auto 12px;
+
+  box-shadow:
+    0 0 18px rgba(255, 215, 0, 0.1);
 }
 
-/* ---------- Role Badges ---------- */
+/* ============================================================
+   Role Badges
+   ============================================================ */
+
 .role-badge,
 .user-role-badge {
   display: inline-block;
+
   padding: 4px 12px;
+
   border-radius: 20px;
+
   font-size: 0.75rem;
+
   font-weight: 600;
+
   text-transform: capitalize;
 }
 
@@ -600,15 +926,42 @@ select {
   color: var(--color-white);
 }
 
-/* ---------- Announcement Cards ---------- */
+/* ============================================================
+   Announcement Cards
+   ============================================================ */
+
 .announcement-card {
   overflow: hidden;
+
+  position: relative;
+
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+.announcement-card:hover {
+  transform: translateY(-5px);
+
+  border-color: var(--color-border-strong);
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.4),
+    0 0 22px rgba(255, 215, 0, 0.08);
 }
 
 .announcement-card img {
   width: 100%;
   height: 180px;
+
   object-fit: cover;
+
+  transition: transform 0.4s ease;
+}
+
+.announcement-card:hover img {
+  transform: scale(1.03);
 }
 
 .announcement-card-body {
@@ -621,46 +974,69 @@ select {
 
 .announcement-card-body p {
   color: var(--color-gray);
+
   margin-bottom: 14px;
+
   font-size: 0.92rem;
 }
 
 .announcement-meta {
   display: flex;
+
   gap: 16px;
+
   flex-wrap: wrap;
+
   font-size: 0.8rem;
+
   color: var(--color-gold);
 }
 
 .announcement-actions {
   display: flex;
+
   gap: 8px;
+
   margin-top: 14px;
 }
 
-/* ---------- Social ---------- */
+/* ============================================================
+   Social: Likes & Comments
+   ============================================================ */
+
 .social-row {
   display: flex;
+
   gap: 10px;
+
   margin-top: 14px;
+
   padding-top: 14px;
+
   border-top: 1px solid var(--color-border);
 }
 
 .social-btn {
   display: flex;
+
   align-items: center;
+
   gap: 6px;
+
   color: var(--color-gray);
+
   font-size: 0.85rem;
+
   padding: 6px 10px;
+
   border-radius: 8px;
+
   transition: all var(--transition);
 }
 
 .social-btn:hover {
   background: rgba(255, 215, 0, 0.08);
+
   color: var(--color-gold);
 }
 
@@ -674,81 +1050,119 @@ select {
 
 .comment-thread {
   margin-top: 12px;
+
   padding-top: 12px;
+
   border-top: 1px solid var(--color-border);
 }
 
 .comment-list {
   max-height: 220px;
+
   overflow-y: auto;
+
   display: flex;
+
   flex-direction: column;
+
   gap: 10px;
+
   margin-bottom: 12px;
 }
 
 .comment-item {
   display: flex;
+
   gap: 10px;
 }
 
 .avatar-circle.small {
   width: 30px;
   height: 30px;
+
   font-size: 0.7rem;
+
   flex-shrink: 0;
 }
 
 .comment-body {
   background: rgba(255, 255, 255, 0.04);
+
   border-radius: 10px;
+
   padding: 8px 12px;
+
   flex: 1;
 }
 
 .comment-body strong {
   font-size: 0.78rem;
+
   color: var(--color-gold);
+
   display: block;
+
   margin-bottom: 2px;
 }
 
 .comment-body p {
   font-size: 0.85rem;
+
   margin: 0;
+
   color: var(--color-white);
 }
 
 .comment-form {
   display: flex;
+
   gap: 8px;
 }
 
 .comment-form input {
   flex: 1;
+
   background: rgba(255, 255, 255, 0.05);
+
   border: 1px solid var(--color-border);
+
   border-radius: 20px;
+
   padding: 8px 16px;
+
   color: var(--color-white);
+
   font-size: 0.85rem;
 }
 
 .comment-form button {
   width: 38px;
   height: 38px;
+
   border-radius: 50%;
+
   background: var(--color-gold);
+
   color: #000;
+
   flex-shrink: 0;
+
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition);
 }
 
-.empty-state.small {
-  padding: 10px 0;
-  font-size: 0.8rem;
+.comment-form button:hover {
+  transform: scale(1.05);
+
+  box-shadow:
+    0 0 15px rgba(255, 215, 0, 0.25);
 }
 
-/* ---------- Grids ---------- */
+/* ============================================================
+   Grids
+   ============================================================ */
+
 .grid {
   display: grid;
   gap: 24px;
@@ -766,80 +1180,140 @@ select {
   grid-template-columns: repeat(4, 1fr);
 }
 
-/* ---------- Pagination ---------- */
+/* ============================================================
+   Pagination
+   ============================================================ */
+
 .pagination {
   display: flex;
+
   justify-content: center;
+
   gap: 8px;
+
   margin-top: 32px;
 }
 
 .page-btn {
   width: 36px;
   height: 36px;
+
   border-radius: 8px;
+
   color: var(--color-white);
+
   background: var(--color-black-elevated);
+
   transition: var(--transition);
 }
 
 .page-btn.active,
 .page-btn:hover {
   background: var(--color-gold);
+
   color: var(--color-black);
+
+  box-shadow:
+    0 0 15px rgba(255, 215, 0, 0.15);
 }
 
-/* ---------- Search / Filter ---------- */
+/* ============================================================
+   Search / Filter Bar
+   ============================================================ */
+
 .toolbar {
   display: flex;
+
   gap: 16px;
+
   flex-wrap: wrap;
+
   margin-bottom: 28px;
 }
 
 .search-box {
   flex: 1;
+
   min-width: 220px;
+
   position: relative;
 }
 
 .search-box input {
   width: 100%;
+
   padding: 12px 16px 12px 40px;
+
   border-radius: var(--radius-sm);
+
   background: var(--color-black-elevated);
+
   border: 1px solid var(--color-border);
+
   color: var(--color-white);
+
+  outline: none;
+
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.search-box input:focus {
+  border-color: var(--color-gold);
+
+  box-shadow:
+    0 0 15px rgba(255, 215, 0, 0.08);
 }
 
 .search-box i {
   position: absolute;
+
   left: 14px;
   top: 50%;
+
   transform: translateY(-50%);
+
   color: var(--color-gray);
 }
 
 .select-filter {
   padding: 12px 16px;
+
   border-radius: var(--radius-sm);
+
   background: var(--color-black-elevated);
+
   border: 1px solid var(--color-border);
+
   color: var(--color-white);
 }
 
-/* ---------- Lightbox ---------- */
+/* ============================================================
+   Lightbox
+   ============================================================ */
+
 .lightbox {
   position: fixed;
+
   inset: 0;
+
   background: rgba(0, 0, 0, 0.92);
+
   display: flex;
+
   flex-direction: column;
+
   align-items: center;
+
   justify-content: center;
+
   z-index: 10002;
+
   opacity: 0;
+
   transition: opacity 0.3s ease;
+
   padding: 24px;
 }
 
@@ -849,35 +1323,66 @@ select {
 
 .lightbox img {
   max-height: 80vh;
+
   border-radius: var(--radius-md);
+
+  box-shadow:
+    0 0 35px rgba(255, 215, 0, 0.08);
 }
 
 .lightbox-caption {
   color: var(--color-white);
+
   margin-top: 16px;
 }
 
 .lightbox-close {
   position: absolute;
+
   top: 24px;
   right: 32px;
+
   font-size: 1.6rem;
+
   color: var(--color-gold);
+
   cursor: pointer;
 }
 
-/* ---------- Gallery ---------- */
+/* ============================================================
+   Gallery Grid
+   ============================================================ */
+
 .gallery-item {
   border-radius: var(--radius-md);
+
   overflow: hidden;
+
   cursor: pointer;
+
   position: relative;
+
+  border: 1px solid transparent;
+
+  transition:
+    border-color var(--transition),
+    box-shadow var(--transition);
+}
+
+.gallery-item:hover {
+  border-color: var(--color-border);
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 215, 0, 0.06);
 }
 
 .gallery-item img {
   width: 100%;
   height: 220px;
+
   object-fit: cover;
+
   transition: transform 0.4s ease;
 }
 
@@ -887,132 +1392,238 @@ select {
 
 .gallery-item figcaption {
   position: absolute;
+
   bottom: 0;
   left: 0;
   right: 0;
+
   padding: 10px 12px;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.85),
-    transparent
-  );
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.85),
+      transparent
+    );
+
   font-size: 0.85rem;
 }
 
-/* ---------- Event Cards ---------- */
+/* ============================================================
+   Event Cards
+   ============================================================ */
+
 .event-card {
   display: flex;
+
   gap: 16px;
+
   padding: 20px;
+
   align-items: flex-start;
+
+  position: relative;
+
+  transition:
+    transform var(--transition),
+    box-shadow var(--transition),
+    border-color var(--transition);
+}
+
+.event-card:hover {
+  transform: translateY(-5px);
+
+  border-color: var(--color-border-strong);
+
+  box-shadow:
+    0 12px 35px rgba(0, 0, 0, 0.35),
+    0 0 22px rgba(255, 215, 0, 0.07);
 }
 
 .event-date-badge {
-  background: var(--color-gold);
+  background:
+    linear-gradient(
+      135deg,
+      var(--color-gold),
+      var(--color-gold-soft)
+    );
+
   color: var(--color-black);
+
   border-radius: var(--radius-sm);
+
   padding: 10px 14px;
+
   text-align: center;
+
   min-width: 64px;
+
+  box-shadow:
+    0 5px 15px rgba(255, 215, 0, 0.12);
 }
 
 .event-date-badge .day {
   display: block;
+
   font-size: 1.3rem;
+
   font-weight: 800;
 }
 
 .event-date-badge .month {
   display: block;
+
   font-size: 0.75rem;
+
   text-transform: uppercase;
 }
 
 .event-location {
   color: var(--color-gray);
+
   font-size: 0.85rem;
+
   display: inline-flex;
+
   gap: 6px;
+
   margin-top: 8px;
 }
 
 .event-rsvp-row {
   display: flex;
+
   align-items: center;
+
   justify-content: space-between;
+
   gap: 12px;
+
   margin-top: 14px;
 }
 
 .rsvp-count {
   color: var(--color-gray);
+
   font-size: 0.82rem;
 }
 
 .rsvp-btn {
   width: auto;
+
   padding: 6px 14px;
+
   border-radius: 20px;
+
   font-size: 0.8rem;
+
   border: 1px solid var(--color-gold);
+
   color: var(--color-gold);
+
   background: transparent;
+
+  transition:
+    background var(--transition),
+    color var(--transition),
+    box-shadow var(--transition);
+}
+
+.rsvp-btn:hover {
+  box-shadow:
+    0 0 15px rgba(255, 215, 0, 0.1);
 }
 
 .rsvp-btn.rsvp-active {
   background: var(--color-gold);
+
   color: var(--color-black);
 }
 
-/* ---------- Achievement Cards ---------- */
+/* ============================================================
+   Achievement Cards
+   ============================================================ */
+
 .achievement-card {
   text-align: center;
+
   padding: 28px 20px;
+
+  position: relative;
 }
 
 .achievement-card img {
   width: 72px;
   height: 72px;
+
   object-fit: cover;
+
   border-radius: 50%;
+
   margin: 0 auto 14px;
+
+  box-shadow:
+    0 0 18px rgba(255, 215, 0, 0.08);
 }
 
 .achievement-icon {
   font-size: 2.4rem;
+
   color: var(--color-gold);
+
   margin-bottom: 14px;
+
+  text-shadow:
+    0 0 15px rgba(255, 215, 0, 0.18);
 }
 
-/* ---------- Member Card ---------- */
+/* ============================================================
+   Member Card
+   ============================================================ */
+
 .member-card {
   text-align: center;
+
   padding: 24px;
+
+  position: relative;
 }
 
 .member-email {
   color: var(--color-gray);
+
   font-size: 0.85rem;
+
   margin-top: 6px;
 }
 
-/* ---------- Presence ---------- */
+/* ============================================================
+   Presence / Online Status
+   ============================================================ */
+
 .avatar-circle {
   position: relative;
 }
 
 .status-dot {
   position: absolute;
+
   bottom: 2px;
   right: 2px;
+
   width: 14px;
   height: 14px;
+
   border-radius: 50%;
+
   border: 2px solid var(--color-black-elevated);
 }
 
 .status-online {
   background: #4ade80;
+
+  box-shadow:
+    0 0 8px rgba(74, 222, 128, 0.45);
 }
 
 .status-offline {
@@ -1021,6 +1632,7 @@ select {
 
 .member-status {
   font-size: 0.8rem;
+
   margin-top: 8px;
 }
 
@@ -1034,147 +1646,216 @@ select {
 
 .member-card .btn-sm {
   margin-top: 12px;
+
   display: inline-flex;
 }
 
 .btn-sm {
   padding: 6px 14px;
+
   font-size: 0.8rem;
 }
 
-
 /* ============================================================
-   PREMIUM GLIMMER DESIGN
+   Scheduled Update
    ============================================================ */
 
-/* ---------- Ambient Gold Glow ---------- */
+#scheduled-update .glass {
+  border-color: rgba(255, 215, 0, 0.22);
 
-body::before {
-  content: "";
-  position: fixed;
-  inset: -30%;
-  pointer-events: none;
-  z-index: -1;
-  background:
-    radial-gradient(
-      circle at 20% 20%,
-      rgba(255, 215, 0, 0.055),
-      transparent 24%
-    ),
-    radial-gradient(
-      circle at 80% 65%,
-      rgba(255, 215, 0, 0.045),
-      transparent 25%
-    );
-  animation: ambientGlow 10s ease-in-out infinite alternate;
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.35),
+    0 0 30px rgba(255, 215, 0, 0.06);
 }
 
-@keyframes ambientGlow {
-  from {
-    transform: scale(1);
-    opacity: 0.65;
-  }
+#update-version {
+  letter-spacing: 1px;
 
-  to {
-    transform: scale(1.08);
-    opacity: 1;
-  }
+  text-shadow:
+    0 0 14px rgba(255, 215, 0, 0.2);
 }
 
-/* ---------- Premium Glass ---------- */
+#update-countdown {
+  color: var(--color-white);
 
-.glass,
-.card,
-.announcement-card,
-.event-card,
-.achievement-card,
-.member-card {
+  text-shadow:
+    0 0 12px rgba(255, 215, 0, 0.12);
+}
+
+#update-status {
+  color: var(--color-gray);
+}
+
+/* ============================================================
+   Release Test Banner
+   ============================================================ */
+
+#release-test-banner {
   position: relative;
+
+  box-shadow:
+    0 3px 18px rgba(255, 215, 0, 0.08);
+
   overflow: hidden;
-  box-shadow:
-    0 8px 30px rgba(0, 0, 0, 0.28),
-    inset 0 1px 0 rgba(255, 255, 255, 0.035);
 }
 
-/* ---------- Glimmer Sweep ---------- */
-
-.glass::after,
-.card::after,
-.announcement-card::after,
-.event-card::after,
-.achievement-card::after,
-.member-card::after {
+#release-test-banner::after {
   content: "";
+
   position: absolute;
-  top: -120%;
-  left: -70%;
+
+  top: 0;
+  left: -100%;
+
   width: 45%;
-  height: 340%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 215, 0, 0.035),
-    rgba(255, 255, 255, 0.09),
-    rgba(255, 215, 0, 0.035),
-    transparent
-  );
-  transform: rotate(18deg);
-  pointer-events: none;
-  transition: left 0.8s ease;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      100deg,
+      transparent,
+      rgba(255, 255, 255, 0.28),
+      transparent
+    );
+
+  transform: skewX(-20deg);
+
+  animation: bannerGlimmer 5s ease-in-out infinite;
 }
 
-.glass:hover::after,
-.card:hover::after,
-.announcement-card:hover::after,
-.event-card:hover::after,
-.achievement-card:hover::after,
-.member-card:hover::after {
-  left: 135%;
+@keyframes bannerGlimmer {
+  0% {
+    left: -100%;
+  }
+
+  35%,
+  100% {
+    left: 140%;
+  }
 }
 
-/* ---------- Gold Edge Glow ---------- */
+/* ============================================================
+   Responsive Enhancements
+   ============================================================ */
 
-.card:hover,
-.announcement-card:hover,
-.event-card:hover,
-.achievement-card:hover,
-.member-card:hover {
-  border-color: rgba(255, 215, 0, 0.32);
-  box-shadow:
-    0 12px 35px rgba(0, 0, 0, 0.35),
-    0 0 22px rgba(255, 215, 0, 0.09);
+@media (max-width: 900px) {
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .about-grid {
+    grid-template-columns: 1fr;
+
+    gap: 32px;
+  }
 }
 
-/* ---------- Navbar Glimmer ---------- */
+@media (max-width: 700px) {
+  .container {
+    padding: 0 18px;
+  }
 
-.navbar {
-  box-shadow:
-    0 4px 25px rgba(0, 0, 0, 0.35),
-    0 1px 14px rgba(255, 215, 0, 0.035);
+  .navbar {
+    padding: 14px 18px;
+  }
+
+  .nav-menu {
+    gap: 16px;
+  }
+
+  .hero {
+    min-height: 80vh;
+
+    padding: 50px 18px;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .grid-3,
+  .grid-2,
+  .grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  .event-card {
+    flex-direction: column;
+  }
+
+  .event-date-badge {
+    min-width: 72px;
+  }
+
+  #toast-container {
+    left: 18px;
+    right: 18px;
+    bottom: 18px;
+  }
+
+  .toast {
+    min-width: 0;
+    width: 100%;
+  }
 }
 
-.navbar::after {
-  content: "";
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  width: 100%;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 215, 0, 0.7),
-    transparent
-  );
-  opacity: 0.5;
+@media (max-width: 600px) {
+  .navbar-logo {
+    font-size: 1rem;
+  }
+
+  .navbar-logo img {
+    width: 32px;
+    height: 32px;
+  }
+
+  .hero h1 {
+    font-size: 2.1rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+
+    width: 100%;
+
+    max-width: 320px;
+
+    margin: 0 auto;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+  }
+
+  .about-section {
+    padding: 60px 0;
+  }
+
+  #update-countdown {
+    font-size: 1.5rem !important;
+  }
+
+  #scroll-top {
+    bottom: 18px;
+    left: 18px;
+  }
 }
 
-/* ---------- Logo Glow ---------- */
+/* ============================================================
+   Accessibility
+   ============================================================ */
 
-.navbar-logo img {
-  filter:
-    drop-shadow(0 0 5px rgba(255, 215, 0, 0.25))
-    drop-shadow(0 0 12px rgba(255, 215, 0, 0.08));
-  transition:
-    filter 0.3s ease,
-  
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
