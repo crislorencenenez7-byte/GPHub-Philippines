@@ -4,22 +4,23 @@
    app shell (static files). Firebase calls always go to network.
    ============================================================ */
 
-const CACHE_NAME = "golden-pride-hub-v1";
+const BASE_PATH = "/GPHub-Philippines/";
 
 const APP_SHELL = [
-  "index.html",
-  "login.html",
-  "register.html",
-  "dashboard.html",
-  "css/style.css",
-  "css/auth.css",
-  "css/dashboard.css",
-  "css/responsive.css",
-  "js/app.js",
-  "js/firebase-config.js",
-  "js/auth.js",
-  "js/dashboard.js",
-  "manifest.json"
+  `${BASE_PATH}`,
+  `${BASE_PATH}index.html`,
+  `${BASE_PATH}login.html`,
+  `${BASE_PATH}register.html`,
+  `${BASE_PATH}dashboard.html`,
+  `${BASE_PATH}css/style.css`,
+  `${BASE_PATH}css/auth.css`,
+  `${BASE_PATH}css/dashboard.css`,
+  `${BASE_PATH}css/responsive.css`,
+  `${BASE_PATH}js/app.js`,
+  `${BASE_PATH}js/firebase-config.js`,
+  `${BASE_PATH}js/auth.js`,
+  `${BASE_PATH}js/dashboard.js`,
+  `${BASE_PATH}manifest.json`
 ];
 
 self.addEventListener("install", (event) => {
