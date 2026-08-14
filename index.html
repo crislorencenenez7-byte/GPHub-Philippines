@@ -1170,7 +1170,27 @@ loadScheduledUpdate();
 
 </script>
 
+<script>
+(function () {
+  function forceHideLoading() {
+    const loader = document.getElementById("loading-screen");
 
+    if (!loader) return;
+
+    loader.classList.add("hide");
+
+    setTimeout(() => {
+      loader.style.display = "none";
+    }, 500);
+  }
+
+  window.addEventListener("load", forceHideLoading);
+
+  // Emergency fallback: huwag kailanman ma-stuck sa loading screen
+  setTimeout(forceHideLoading, 3000);
+})();
+</script>
+  
 </body>
 
 </html>
