@@ -15,17 +15,15 @@
 </head>
 <body>
 
-<div
-  id="release-test-banner"
+<div id="release-test-banner"
   style="
     text-align: center;
     padding: 12px;
     background: #ffd700;
     color: #0d0d0d;
     font-weight: 700;
-  "
->
-  UPDATE IS NOW LIVE — v2.5 is now released and fixes errors.
+  ">
+  Loading latest release...
 </div>
   
   <!-- Loading Screen -->
@@ -271,6 +269,30 @@ loadScheduledUpdate();
   setInterval(checkVersion, CHECK_INTERVAL);
 })();
   </script>
-  
+  <script>
+async function loadReleaseVersion() {
+  try {
+    const response = await fetch("version.json?ts=" + Date.now(), {
+      cache: "no-store"
+    });
+
+    if (!response.ok) throw new Error("Failed to load version.json");
+
+    const data = await response.json();
+
+    const banner = document.getElementById("release-test-banner");
+
+    if (banner) {
+      banner.textContent =
+        `UPDATE IS NOW LIVE — ${data.updateName}`;
+    }
+
+  } catch (error) {
+    console.error("Release version error:", error);
+  }
+}
+
+loadReleaseVersion();
+  </script>
 </body>
 </html>
