@@ -632,13 +632,13 @@ async function loadScheduledUpdate() {
   try {
 
     const response =
-      await fetch(
-        "update-1.4/update.json?ts=" +
-        Date.now(),
-        {
-          cache: "no-store"
-        }
-      );
+  await fetch(
+    "https://raw.githubusercontent.com/crislorencenenez7-byte/GPHub-Philippines/update-1.4/update.json?ts=" +
+    Date.now(),
+    {
+      cache: "no-store"
+    }
+  );
 
 
     if (!response.ok) {
