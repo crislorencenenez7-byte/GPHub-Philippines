@@ -336,9 +336,11 @@
       async function loadScheduledUpdate() {
         try {
           const response = await fetch(
-            "update-1.4/update.json?cache=" + Date.now(),
-            { cache: "no-store" }
-          );
+  "https://raw.githubusercontent.com/crislorencenenez7-byte/GPHub-Philippines/update-1.4/update.json?ts=" + Date.now(),
+  {
+    cache: "no-store"
+  }
+);
 
           if (!response.ok) {
             throw new Error("update.json HTTP " + response.status);
