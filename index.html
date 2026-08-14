@@ -804,7 +804,160 @@ async function loadScheduledUpdate() {
 
       const seconds =
         totalSeconds % 60;
+<script>
+async function loadScheduledUpdate() {
 
+  const countdown =
+    document.getElementById("update-countdown");
+
+  const title =
+    document.getElementById("update-title");
+
+  const description =
+    document.getElementById("update-description");
+
+  const version =
+    document.getElementById("update-version");
+
+  const status =
+    document.getElementById("update-status");
+
+  try {
+
+    const response = await fetch(
+      "update-1.4/update.json?ts=" + Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `HTTP ${response.status} while loading update-1.4/update.json`
+      );
+    }
+
+    const update = await response.json();
+
+    console.log("Loaded update.json:", update);
+
+    /* -----------------------------
+       UPDATE INFORMATION
+       ----------------------------- */
+
+    if (title) {
+      title.textContent =
+        update.updateName || "Scheduled Update";
+    }
+
+    if (description) {
+      description.textContent =
+        update.version
+          ? `Version ${update.version}`
+          : "";
+    }
+
+    if (version) {
+      version.textContent =
+        update.version
+          ? `UPDATE ${update.version}`
+          : "UPDATE";
+    }
+
+    /* -----------------------------
+       CHECK DATE + TIME
+       ----------------------------- */
+
+    if (!update.releaseDate || !update.releaseTime) {
+
+      if (countdown) {
+        countdown.textContent =
+          "Release date/time unavailable.";
+      }
+
+      if (status) {
+        status.textContent =
+          "Check update-1.4/update.json";
+      }
+
+      return;
+    }
+
+    /*
+      Philippine Time (UTC+8)
+      Example:
+      2026-08-14 + 12:30
+      = 2026-08-14T12:30:00+08:00
+    */
+
+    const releaseString =
+      `${update.releaseDate}T${update.releaseTime}:00+08:00`;
+
+    const releaseTime =
+      new Date(releaseString);
+
+    console.log(
+      "Release time:",
+      releaseString,
+      releaseTime
+    );
+
+    if (Number.isNaN(releaseTime.getTime())) {
+
+      throw new Error(
+        "Invalid release date/time: " +
+        releaseString
+      );
+    }
+
+    /* -----------------------------
+       COUNTDOWN
+       ----------------------------- */
+
+    function updateCountdown() {
+
+      const now = new Date();
+
+      const difference =
+        releaseTime.getTime() - now.getTime();
+
+      /* UPDATE IS LIVE */
+
+      if (difference <= 0) {
+
+        if (countdown) {
+          countdown.textContent =
+            "UPDATE IS NOW LIVE!";
+        }
+
+        if (status) {
+          status.textContent =
+            `${update.updateName || "Update"} • Released ${update.releaseDate} ${update.releaseTime} PH`;
+        }
+
+        return;
+      }
+
+      /* REMAINING TIME */
+
+      const totalSeconds =
+        Math.floor(difference / 1000);
+
+      const days =
+        Math.floor(totalSeconds / 86400);
+
+      const hours =
+        Math.floor(
+          (totalSeconds % 86400) / 3600
+        );
+
+      const minutes =
+        Math.floor(
+          (totalSeconds % 3600) / 60
+        );
+
+      const seconds =
+        totalSeconds % 60;
 
       if (countdown) {
 
@@ -813,29 +966,25 @@ async function loadScheduledUpdate() {
 
       }
 
-
       if (status) {
 
         status.textContent =
-          `Releasing ${
-            update.releaseDate || ""
-          } at ${
-            update.releaseTime || ""
-          } PH`;
+          `Releasing ${update.releaseDate} at ${update.releaseTime} PH`;
 
       }
 
     }
 
+    /* Run immediately */
 
     updateCountdown();
 
+    /* Update every second */
 
     setInterval(
       updateCountdown,
       1000
     );
-
 
   } catch (error) {
 
@@ -844,27 +993,19 @@ async function loadScheduledUpdate() {
       error
     );
 
-
-    const countdown =
-      document.getElementById(
-        "update-countdown"
-      );
-
-
     if (countdown) {
-
       countdown.textContent =
-        "Update information unavailable.";
-
+        "Unable to load update timer.";
     }
 
+    if (status) {
+      status.textContent =
+        "Check the browser console for details.";
+    }
   }
-
 }
 
-
 loadScheduledUpdate();
-
 </script>
 
 
