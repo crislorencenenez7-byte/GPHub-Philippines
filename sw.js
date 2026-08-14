@@ -1,12 +1,15 @@
 /* ============================================================
    sw.js — Golden Pride Hub
    Service Worker / PWA
+   Fixed cache/update strategy
    ============================================================ */
 
-const CACHE_NAME = "golden-pride-hub-v2.3";
-
+const CACHE_NAME = "golden-pride-hub-v2.5";
 const BASE_PATH = "/GPHub-Philippines/";
 
+/*
+   Static app shell.
+*/
 const APP_SHELL = [
   `${BASE_PATH}`,
   `${BASE_PATH}index.html`,
@@ -32,227 +35,203 @@ const APP_SHELL = [
    INSTALL
    ============================================================ */
 
-self.addEventListener(
-  "install",
-  (event) => {
+self.addEventListener("install", (event) => {
 
-    console.log(
-      "Golden Pride Hub Service Worker installing..."
-    );
+  console.log(
+    "[SW] Installing:",
+    CACHE_NAME
+  );
 
-    event.waitUntil(
+  event.waitUntil(
 
-      caches
-        .open(CACHE_NAME)
+    caches.open(CACHE_NAME)
 
-        .then((cache) => {
+      .then((cache) => {
 
-          console.log(
-            "Caching Golden Pride Hub app shell..."
-          );
+        return cache.addAll(APP_SHELL);
 
-          return cache.addAll(APP_SHELL);
+      })
 
-        })
+      .then(() => {
 
-        .catch((error) => {
+        console.log(
+          "[SW] App shell cached."
+        );
 
-          console.error(
-            "Failed to cache app shell:",
-            error
-          );
+        /*
+           Activate the new worker immediately.
+        */
+        return self.skipWaiting();
 
-        })
+      })
 
-    );
+      .catch((error) => {
 
-    // Activate immediately
-    self.skipWaiting();
+        console.error(
+          "[SW] Cache installation failed:",
+          error
+        );
 
-  }
-);
+      })
+
+  );
+
+});
 
 
 /* ============================================================
    ACTIVATE
    ============================================================ */
 
-self.addEventListener(
-  "activate",
-  (event) => {
+self.addEventListener("activate", (event) => {
 
-    console.log(
-      "Golden Pride Hub Service Worker activated."
-    );
+  console.log(
+    "[SW] Activating:",
+    CACHE_NAME
+  );
 
-    event.waitUntil(
+  event.waitUntil(
 
-      caches
-        .keys()
+    caches.keys()
 
-        .then((cacheNames) => {
+      .then((cacheNames) => {
 
-          return Promise.all(
+        return Promise.all(
 
-            cacheNames
+          cacheNames
+            .filter(
+              (cacheName) =>
+                cacheName !== CACHE_NAME
+            )
+            .map((oldCache) => {
 
-              .filter(
-                (cacheName) =>
-                  cacheName !== CACHE_NAME
-              )
+              console.log(
+                "[SW] Deleting old cache:",
+                oldCache
+              );
 
-              .map(
-                (cacheName) => {
+              return caches.delete(oldCache);
 
-                  console.log(
-                    "Deleting old cache:",
-                    cacheName
-                  );
+            })
 
-                  return caches.delete(
-                    cacheName
-                  );
+        );
 
-                }
-              )
+      })
 
-          );
+      .then(() => {
 
-        })
+        /*
+           Take control of currently open pages.
+        */
+        return self.clients.claim();
 
-    );
+      })
 
-    // Take control of all open pages
-    self.clients.claim();
+  );
 
-  }
-);
+});
 
 
 /* ============================================================
    FETCH
    ============================================================ */
 
-self.addEventListener(
-  "fetch",
-  (event) => {
+self.addEventListener("fetch", (event) => {
 
-    const request =
-      event.request;
+  const request = event.request;
 
-    const url =
-      new URL(request.url);
-
-
-    /*
-       Only handle GET requests.
-    */
-
-    if (
-      request.method !== "GET"
-    ) {
-
-      return;
-
-    }
+  /*
+     Only handle GET requests.
+  */
+  if (request.method !== "GET") {
+    return;
+  }
 
 
-    /*
-       Do not cache Firebase,
-       Google APIs, or external services.
-    */
-
-    if (
-
-      url.hostname.includes(
-        "firebaseio.com"
-      )
-
-      ||
-
-      url.hostname.includes(
-        "googleapis.com"
-      )
-
-      ||
-
-      url.hostname.includes(
-        "gstatic.com"
-      )
-
-    ) {
-
-      return;
-
-    }
+  const url = new URL(request.url);
 
 
-    /*
-       Cache first, then network.
-    */
+  /*
+     Ignore external services.
+  */
+  if (
+    url.hostname.includes("firebaseio.com") ||
+    url.hostname.includes("googleapis.com") ||
+    url.hostname.includes("gstatic.com") ||
+    url.hostname.includes("githubusercontent.com") ||
+    url.hostname.includes("cdnjs.cloudflare.com") ||
+    url.hostname.includes("fonts.googleapis.com") ||
+    url.hostname.includes("fonts.gstatic.com")
+  ) {
+
+    return;
+
+  }
+
+
+  /*
+     IMPORTANT:
+
+     HTML documents use NETWORK-FIRST.
+
+     This prevents an old cached index.html from
+     remaining visible after a new GitHub Pages release.
+  */
+  const isHTML =
+    request.mode === "navigate" ||
+    request.destination === "document" ||
+    request.headers.get("accept")?.includes("text/html");
+
+
+  if (isHTML) {
 
     event.respondWith(
 
-      caches
-        .match(request)
+      fetch(request, {
+        cache: "no-store"
+      })
 
-        .then((cachedResponse) => {
+        .then((networkResponse) => {
 
-          if (cachedResponse) {
+          /*
+             Save the latest HTML response.
+          */
+          if (
+            networkResponse &&
+            networkResponse.ok
+          ) {
 
-            return cachedResponse;
+            const responseClone =
+              networkResponse.clone();
+
+            caches.open(CACHE_NAME)
+              .then((cache) => {
+
+                cache.put(
+                  request,
+                  responseClone
+                );
+
+              });
 
           }
 
+          return networkResponse;
 
-          return fetch(request)
+        })
 
-            .then((networkResponse) => {
+        .catch(() => {
 
-              /*
-                 Only cache successful responses.
-              */
+          /*
+             Offline fallback:
+             use cached HTML if available.
+          */
+          return caches.match(request)
+            .then((cachedResponse) => {
 
-              if (
-                networkResponse &&
-                networkResponse.status === 200 &&
-                networkResponse.type === "basic"
-              ) {
-
-                const responseClone =
-                  networkResponse.clone();
-
-
-                caches
-                  .open(CACHE_NAME)
-                  .then((cache) => {
-
-                    cache.put(
-                      request,
-                      responseClone
-                    );
-
-                  });
-
+              if (cachedResponse) {
+                return cachedResponse;
               }
-
-
-              return networkResponse;
-
-            })
-
-            .catch((error) => {
-
-              console.error(
-                "Network request failed:",
-                error
-              );
-
-
-              /*
-                 If offline and no cached response,
-                 return a basic offline response.
-              */
 
               return new Response(
                 "Golden Pride Hub is currently offline.",
@@ -271,5 +250,100 @@ self.addEventListener(
 
     );
 
+    return;
+
   }
-);
+
+
+  /*
+     Static assets:
+
+     Cache-first with network fallback.
+  */
+  event.respondWith(
+
+    caches.match(request)
+
+      .then((cachedResponse) => {
+
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+
+        return fetch(request)
+
+          .then((networkResponse) => {
+
+            /*
+               Cache only successful same-origin
+               responses.
+            */
+            if (
+              networkResponse &&
+              networkResponse.status === 200 &&
+              networkResponse.type === "basic"
+            ) {
+
+              const responseClone =
+                networkResponse.clone();
+
+              caches.open(CACHE_NAME)
+                .then((cache) => {
+
+                  cache.put(
+                    request,
+                    responseClone
+                  );
+
+                });
+
+            }
+
+            return networkResponse;
+
+          });
+
+      })
+
+      .catch(() => {
+
+        return new Response(
+          "Golden Pride Hub is currently offline.",
+          {
+            status: 503,
+            headers: {
+              "Content-Type":
+                "text/plain; charset=utf-8"
+            }
+          }
+        );
+
+      })
+
+  );
+
+});
+
+
+/* ============================================================
+   MESSAGE
+   ============================================================ */
+
+/*
+   Allows app.js to tell the service worker
+   to activate immediately.
+*/
+
+self.addEventListener("message", (event) => {
+
+  if (
+    event.data &&
+    event.data.type === "SKIP_WAITING"
+  ) {
+
+    self.skipWaiting();
+
+  }
+
+});
