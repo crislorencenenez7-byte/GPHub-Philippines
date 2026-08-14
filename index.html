@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Golden Pride Hub | Golden Pride Philippines</title>
 
@@ -13,10 +18,21 @@
 
   <link rel="icon" href="assets/logo.png">
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#ffd700">
 
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/responsive.css">
+  <meta
+    name="theme-color"
+    content="#ffd700"
+  >
+
+  <link
+    rel="stylesheet"
+    href="css/style.css"
+  >
+
+  <link
+    rel="stylesheet"
+    href="css/responsive.css"
+  >
 
   <link
     rel="stylesheet"
@@ -24,87 +40,928 @@
   >
 </head>
 
+
 <body>
 
-  <!-- ============================================================
-       RELEASE BANNER
-       ============================================================ -->
 
-  <div
-    id="release-test-banner"
-    style="
-      text-align: center;
-      padding: 12px;
-      background: #ffd700;
-      color: #0d0d0d;
-      font-weight: 700;
-    "
+<!-- ============================================================
+     RELEASE BANNER
+     version.json → updateName
+     ============================================================ -->
+
+<div
+  id="release-test-banner"
+  style="
+    text-align:center;
+    padding:12px;
+    background:#ffd700;
+    color:#0d0d0d;
+    font-weight:700;
+  "
+>
+  Loading latest release...
+</div>
+
+
+<!-- ============================================================
+     LOADING SCREEN
+     ============================================================ -->
+
+<div id="loading-screen">
+
+  <div class="spinner"></div>
+
+</div>
+
+
+<!-- ============================================================
+     NAVBAR
+     ============================================================ -->
+
+<nav class="navbar">
+
+  <a
+    href="index.html"
+    class="navbar-logo"
   >
-    Loading latest release...
-  </div>
+
+    <img
+      src="assets/logo.png"
+      alt="Golden Pride Hub logo"
+      onerror="this.style.display='none'"
+    >
+
+    <span>
+      Golden Pride
+      <span class="text-gold">
+        Hub
+      </span>
+    </span>
+
+  </a>
 
 
-  <!-- ============================================================
-       LOADING SCREEN
-       ============================================================ -->
+  <!-- INSTALL APP -->
 
-  <div id="loading-screen">
-    <div class="spinner"></div>
-  </div>
+  <button
+    id="install-app-btn"
+    class="btn btn-primary"
+    type="button"
+    hidden
+  >
+
+    <i class="fa-solid fa-download"></i>
+
+    Install App
+
+  </button>
 
 
-  <!-- ============================================================
-       NAVBAR
-       ============================================================ -->
+  <!-- MOBILE MENU -->
 
-  <nav class="navbar">
+  <button
+    class="nav-toggle"
+    aria-label="Toggle navigation"
+    type="button"
+  >
 
-    <a href="index.html" class="navbar-logo">
-      <img
-        src="assets/logo.png"
-        alt="Golden Pride Hub logo"
-        onerror="this.style.display='none'"
+    <span></span>
+    <span></span>
+    <span></span>
+
+  </button>
+
+
+  <!-- NAVIGATION -->
+
+  <ul class="nav-menu">
+
+    <li>
+      <a
+        href="index.html"
+        class="active"
+      >
+        Home
+      </a>
+    </li>
+
+
+    <li>
+      <a href="index.html#about">
+        About
+      </a>
+    </li>
+
+
+    <li>
+      <a href="index.html#announcements">
+        Announcements
+      </a>
+    </li>
+
+
+    <li class="nav-actions">
+
+      <a
+        href="login.html"
+        class="btn btn-outline"
+      >
+        Login
+      </a>
+
+
+      <a
+        href="register.html"
+        class="btn btn-primary"
+      >
+        Register
+      </a>
+
+    </li>
+
+  </ul>
+
+</nav>
+
+
+<!-- ============================================================
+     HERO
+     ============================================================ -->
+
+<header class="hero">
+
+  <div class="hero-content fade-in">
+
+    <p class="hero-eyebrow">
+      Golden Pride Philippines
+    </p>
+
+
+    <h1>
+      Welcome to
+      <span class="text-gold">
+        Golden Pride Hub
+      </span>
+    </h1>
+
+
+    <p>
+      The official community platform of Golden Pride Philippines —
+      stay updated with announcements, events, achievements,
+      and connect with fellow members.
+    </p>
+
+
+    <div class="hero-actions">
+
+      <a
+        href="register.html"
+        class="btn btn-primary"
       >
 
-      <span>
-        Golden Pride
-        <span class="text-gold">Hub</span>
-      </span>
-    </a>
+        <i class="fa-solid fa-user-plus"></i>
+
+        Join the Pride
+
+      </a>
 
 
-    <!-- PWA INSTALL BUTTON -->
+      <a
+        href="login.html"
+        class="btn btn-outline"
+      >
 
-    <button
-      id="install-app-btn"
-      class="btn btn-primary"
-      type="button"
-      hidden
+        <i class="fa-solid fa-right-to-bracket"></i>
+
+        Member Login
+
+      </a>
+
+    </div>
+
+  </div>
+
+</header>
+
+
+<!-- ============================================================
+     ABOUT
+     ============================================================ -->
+
+<section
+  class="about-section container"
+  id="about"
+>
+
+  <div class="about-grid">
+
+
+    <div class="slide-in">
+
+      <p class="hero-eyebrow">
+        About Us
+      </p>
+
+
+      <h2 class="section-title">
+        Who We Are
+      </h2>
+
+
+      <p class="section-subtitle">
+
+        Golden Pride Philippines is a community built on
+        excellence, unity, and pride. Golden Pride Hub is our
+        digital home — where members stay connected, informed,
+        and celebrated. From official announcements to
+        community events and shared achievements, this is
+        where the Pride comes together.
+
+      </p>
+
+
+      <a
+        href="register.html"
+        class="btn btn-primary"
+      >
+        Become a Member
+      </a>
+
+    </div>
+
+
+    <div class="glass card fade-in">
+
+      <h3>
+
+        <i class="fa-solid fa-star text-gold"></i>
+
+        Our Values
+
+      </h3>
+
+
+      <p
+        style="
+          margin-top:12px;
+          color:var(--color-gray);
+        "
+      >
+
+        Excellence, unity, and pride guide everything
+        we do as a community — from local events to
+        shared celebrations of our members' achievements.
+
+      </p>
+
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ============================================================
+     LATEST ANNOUNCEMENT
+     ============================================================ -->
+
+<section
+  class="container"
+  id="announcements"
+  style="padding-bottom:80px;"
+>
+
+  <p class="hero-eyebrow">
+    Stay Updated
+  </p>
+
+
+  <h2 class="section-title">
+    Latest Announcement
+  </h2>
+
+
+  <p class="section-subtitle">
+    A quick look at what's new in the community.
+  </p>
+
+
+  <div
+    id="latest-announcement"
+    class="grid grid-3"
+  ></div>
+
+</section>
+
+
+<!-- ============================================================
+     SCHEDULED UPDATE
+     Connected to update-1.4/update.json
+     ============================================================ -->
+
+<section
+  class="container"
+  id="scheduled-update"
+  style="padding-bottom:80px;"
+>
+
+  <p class="hero-eyebrow">
+    Upcoming Update
+  </p>
+
+
+  <h2
+    class="section-title"
+    id="update-title"
+  >
+    Scheduled Update
+  </h2>
+
+
+  <p
+    class="section-subtitle"
+    id="update-description"
+  >
+    Loading update information...
+  </p>
+
+
+  <div
+    class="glass card"
+    style="
+      text-align:center;
+      padding:30px;
+    "
+  >
+
+    <h3
+      id="update-version"
+      class="text-gold"
     >
-      <i class="fa-solid fa-download"></i>
-      Install App
-    </button>
+      Loading...
+    </h3>
 
 
-    <!-- MOBILE MENU BUTTON -->
-
-    <button
-      class="nav-toggle"
-      aria-label="Toggle navigation"
-      type="button"
+    <div
+      id="update-countdown"
+      style="
+        font-size:2rem;
+        font-weight:700;
+        margin:20px 0;
+      "
     >
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
+      Loading...
+    </div>
 
 
-    <!-- NAVIGATION LINKS -->
+    <p id="update-status"></p>
 
-    <ul class="nav-menu">
+  </div>
 
-      <li>
-        <a href="index.html" class="active">
+</section>
+
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+
+<footer class="site-footer">
+
+  <p class="footer-logo">
+    Golden Pride Hub
+  </p>
+
+
+  <p>
+
+    &copy;
+
+    <span id="year"></span>
+
+    Golden Pride Philippines.
+
+    All rights reserved.
+
+  </p>
+
+</footer>
+
+
+<!-- ============================================================
+     SCROLL TO TOP
+     ============================================================ -->
+
+<button
+  id="scroll-top"
+  aria-label="Scroll to top"
+  type="button"
+>
+
+  <i class="fa-solid fa-arrow-up"></i>
+
+</button>
+
+
+<!-- ============================================================
+     FIREBASE
+     ============================================================ -->
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+
+
+<script src="js/firebase-config.js"></script>
+
+<script src="js/app.js"></script>
+
+<script src="js/dashboard.js"></script>
+
+
+<!-- ============================================================
+     YEAR + ANNOUNCEMENT
+     ============================================================ -->
+
+<script>
+
+document.getElementById("year").textContent =
+  new Date().getFullYear();
+
+
+const initPreview = () => {
+
+  if (
+    typeof loadRecentAnnouncementPreview === "function" &&
+    typeof db !== "undefined"
+  ) {
+
+    loadRecentAnnouncementPreview();
+
+  } else {
+
+    setTimeout(
+      initPreview,
+      200
+    );
+
+  }
+
+};
+
+
+if (
+  document.readyState === "loading"
+) {
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    initPreview
+  );
+
+} else {
+
+  initPreview();
+
+}
+
+</script>
+
+
+<!-- ============================================================
+     RELEASE VERSION
+     version.json → updateName
+     ============================================================ -->
+
+<script>
+
+async function loadReleaseVersion() {
+
+  try {
+
+    const response = await fetch(
+      "version.json?ts=" + Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Failed to load version.json"
+      );
+
+    }
+
+
+    const data =
+      await response.json();
+
+
+    const banner =
+      document.getElementById(
+        "release-test-banner"
+      );
+
+
+    if (banner) {
+
+      if (data.updateName) {
+
+        banner.textContent =
+          `UPDATE IS NOW LIVE — ${data.updateName}`;
+
+      } else if (data.version) {
+
+        banner.textContent =
+          `UPDATE IS NOW LIVE — Version ${data.version}`;
+
+      } else {
+
+        banner.textContent =
+          "Golden Pride Hub";
+
+      }
+
+    }
+
+
+  } catch (error) {
+
+    console.error(
+      "Release version error:",
+      error
+    );
+
+
+    const banner =
+      document.getElementById(
+        "release-test-banner"
+      );
+
+
+    if (banner) {
+
+      banner.textContent =
+        "Golden Pride Hub";
+
+    }
+
+  }
+
+}
+
+
+loadReleaseVersion();
+
+</script>
+
+
+<!-- ============================================================
+     SCHEDULED UPDATE / COUNTDOWN
+     SOURCE: update-1.4/update.json
+     ============================================================ -->
+
+<script>
+
+async function loadScheduledUpdate() {
+
+  try {
+
+    const response =
+      await fetch(
+        "update-1.4/update.json?ts=" +
+        Date.now(),
+        {
+          cache: "no-store"
+        }
+      );
+
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Unable to load update-1.4/update.json"
+      );
+
+    }
+
+
+    const update =
+      await response.json();
+
+
+    const title =
+      document.getElementById(
+        "update-title"
+      );
+
+
+    const description =
+      document.getElementById(
+        "update-description"
+      );
+
+
+    const version =
+      document.getElementById(
+        "update-version"
+      );
+
+
+    const countdown =
+      document.getElementById(
+        "update-countdown"
+      );
+
+
+    const status =
+      document.getElementById(
+        "update-status"
+      );
+
+
+    if (title) {
+
+      title.textContent =
+        update.updateName ||
+        "Scheduled Update";
+
+    }
+
+
+    if (description) {
+
+      description.textContent =
+        update.version
+          ? `Version ${update.version}`
+          : "";
+
+    }
+
+
+    if (version) {
+
+      version.textContent =
+        update.version
+          ? `UPDATE ${update.version}`
+          : "UPDATE";
+
+    }
+
+
+    if (
+      !update.releaseDate ||
+      !update.releaseTime
+    ) {
+
+      if (countdown) {
+
+        countdown.textContent =
+          "Update information unavailable.";
+
+      }
+
+      return;
+
+    }
+
+
+    const releaseTime =
+      new Date(
+        `${update.releaseDate}T${update.releaseTime}:00+08:00`
+      );
+
+
+    function updateCountdown() {
+
+      const now =
+        new Date();
+
+
+      const difference =
+        releaseTime - now;
+
+
+      if (
+        difference <= 0
+      ) {
+
+        if (countdown) {
+
+          countdown.textContent =
+            "UPDATE IS NOW LIVE!";
+
+        }
+
+
+        if (status) {
+
+          status.textContent =
+            `${update.updateName || ""} • Released ${
+              update.releaseDate || ""
+            } ${
+              update.releaseTime || ""
+            } PH`;
+
+        }
+
+        return;
+
+      }
+
+
+      const totalSeconds =
+        Math.floor(
+          difference / 1000
+        );
+
+
+      const days =
+        Math.floor(
+          totalSeconds / 86400
+        );
+
+
+      const hours =
+        Math.floor(
+          (
+            totalSeconds % 86400
+          ) / 3600
+        );
+
+
+      const minutes =
+        Math.floor(
+          (
+            totalSeconds % 3600
+          ) / 60
+        );
+
+
+      const seconds =
+        totalSeconds % 60;
+
+
+      if (countdown) {
+
+        countdown.textContent =
+          `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      }
+
+
+      if (status) {
+
+        status.textContent =
+          `Releasing ${
+            update.releaseDate || ""
+          } at ${
+            update.releaseTime || ""
+          } PH`;
+
+      }
+
+    }
+
+
+    updateCountdown();
+
+
+    setInterval(
+      updateCountdown,
+      1000
+    );
+
+
+  } catch (error) {
+
+    console.error(
+      "Scheduled update error:",
+      error
+    );
+
+
+    const countdown =
+      document.getElementById(
+        "update-countdown"
+      );
+
+
+    if (countdown) {
+
+      countdown.textContent =
+        "Update information unavailable.";
+
+    }
+
+  }
+
+}
+
+
+loadScheduledUpdate();
+
+</script>
+
+
+<!-- ============================================================
+     AUTO VERSION CHECK
+     version.json changes → page reload
+     ============================================================ -->
+
+<script>
+
+(async function checkForNewVersion() {
+
+  const CHECK_INTERVAL =
+    10000;
+
+  let currentVersion =
+    null;
+
+
+  async function checkVersion() {
+
+    try {
+
+      const response =
+        await fetch(
+          "version.json?ts=" +
+          Date.now(),
+          {
+            cache: "no-store"
+          }
+        );
+
+
+      if (!response.ok) {
+
+        return;
+
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        currentVersion === null
+      ) {
+
+        currentVersion =
+          data.version;
+
+        return;
+
+      }
+
+
+      if (
+        data.version !==
+        currentVersion
+      ) {
+
+        console.log(
+          `New version detected: ${currentVersion} → ${data.version}`
+        );
+
+
+        window.location.reload();
+
+      }
+
+    } catch (error) {
+
+      console.log(
+        "Version check failed:",
+        error
+      );
+
+    }
+
+  }
+
+
+  await checkVersion();
+
+
+  setInterval(
+    checkVersion,
+    CHECK_INTERVAL
+  );
+
+})();
+
+</script>
+
+
+</body>
+</html>        <a href="index.html" class="active">
           Home
         </a>
       </li>
