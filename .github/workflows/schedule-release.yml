@@ -46,6 +46,9 @@ jobs:
           print("Release time:", release_time)
           print("Version:", data["version"])
 
+          with open("/tmp/version", "w") as f:
+              f.write(data["version"])
+
           if now >= release_time:
               with open("/tmp/release-ready", "w") as f:
                   f.write("yes")
@@ -57,6 +60,7 @@ jobs:
           PY
 
           echo "ready=$(cat /tmp/release-ready)" >> "$GITHUB_OUTPUT"
+          echo "version=$(cat /tmp/version)" >> "$GITHUB_OUTPUT"
 
       - name: Merge update-1.4 into main
         if: steps.release.outputs.ready == 'yes'
@@ -67,9 +71,70 @@ jobs:
           git fetch origin
 
           git checkout main
-          git merge origin/update-1.4 --no-edit
+          git pull origin main
+
+          echo "Merging update-1.4 into main..."
+
+          if git merge origin/update-1.4 --no-edit; then
+            echo "Merge completed without conflicts."
+          else
+            echo "Merge conflict detected. Resolving..."
+
+            # Keep the update-1.4 version of style.css
+            if git ls-files -u -- css/style.css | grep -q .; then
+              git checkout --theirs -- css/style.css
+              git add css/style.css
+              echo "Resolved css/style.css using update-1.4."
+            fi
+
+            # update.json is only used to schedule the release.
+            # It must not remain in main after release.
+            if git ls-files -u -- update.json | grep -q .; then
+              git rm -f update.json
+              echo "Resolved update.json by deleting it."
+            elif [ -f update.json ]; then
+              git rm -f update.json
+            fi
+
+            # Make sure there are no other unresolved conflicts
+            if git diff --name-only --diff-filter=U | grep -q .; then
+              echo "ERROR: Other unresolved merge conflicts remain:"
+              git diff --name-only --diff-filter=U
+              exit 1
+            fi
+
+            git commit -m "Release scheduled update"
+          fi
+
+          # Make absolutely sure update.json is removed from main
+          if [ -f update.json ]; then
+            git rm -f update.json
+            git commit -m "Remove release schedule file"
+          fi
+
+          # Create version.json
+          RELEASED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          cat > version.json <<EOF
+          {
+            "version": "${{ steps.release.outputs.version }}",
+            "releasedAt": "${RELEASED_AT}"
+          }
+          EOF
+
+          git add version.json
+
+          if git diff --cached --quiet; then
+            echo "version.json already up to date."
+          else
+            git commit -m "Release v${{ steps.release.outputs.version }}"
+          fi
 
           git push origin main
+
+          echo "===================================="
+          echo "UPDATE ${{ steps.release.outputs.version }} RELEASED SUCCESSFULLY"
+          echo "===================================="
 
       - name: Wait for scheduled release
         if: steps.release.outputs.ready == 'no'
