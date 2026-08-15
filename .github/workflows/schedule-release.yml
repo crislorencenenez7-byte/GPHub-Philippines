@@ -3,7 +3,9 @@ name: Scheduled Release
 on:
   schedule:
     - cron: "*/5 * * * *"
+
   workflow_dispatch:
+
   repository_dispatch:
     types: [scheduled-release]
 
@@ -19,6 +21,11 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # ============================================
+      # CHECKOUT MAIN
+      # ============================================
+
       - name: Checkout main
         uses: actions/checkout@v4
         with:
@@ -26,9 +33,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: true
 
+      # ============================================
+      # FETCH BOTH BRANCHES
+      # ============================================
+
       - name: Fetch branches
         run: |
           git fetch origin main update-1.4 --prune
+
+      # ============================================
+      # CHECK RELEASE TIME
+      # ============================================
 
       - name: Check release time
         id: release
@@ -43,7 +58,11 @@ jobs:
           from datetime import datetime, timezone
 
           raw = subprocess.check_output(
-              ["git", "show", "origin/update-1.4:update.json"],
+              [
+                  "git",
+                  "show",
+                  "origin/update-1.4:update.json"
+              ],
               text=True
           )
 
@@ -62,17 +81,44 @@ jobs:
 
           ready = now >= release_time
 
-          # ONLY GitHub Actions output values go to stdout.
+          # GitHub Actions outputs ONLY
           print(f"version={version}")
           print(f"ready={'yes' if ready else 'no'}")
 
-          # Diagnostic information goes to stderr.
-          print("====================================", file=sys.stderr)
-          print("CURRENT UTC:", now, file=sys.stderr)
-          print("RELEASE TIME:", release_time, file=sys.stderr)
-          print("VERSION:", version, file=sys.stderr)
-          print("READY:", ready, file=sys.stderr)
-          print("====================================", file=sys.stderr)
+          # Logs
+          print(
+              "====================================",
+              file=sys.stderr
+          )
+
+          print(
+              "CURRENT UTC:",
+              now,
+              file=sys.stderr
+          )
+
+          print(
+              "RELEASE TIME:",
+              release_time,
+              file=sys.stderr
+          )
+
+          print(
+              "VERSION:",
+              version,
+              file=sys.stderr
+          )
+
+          print(
+              "READY:",
+              ready,
+              file=sys.stderr
+          )
+
+          print(
+              "====================================",
+              file=sys.stderr
+          )
           PY
 
           cat /tmp/release-output >> "$GITHUB_OUTPUT"
@@ -80,6 +126,10 @@ jobs:
           echo "===================================="
           cat /tmp/release-output
           echo "===================================="
+
+      # ============================================
+      # RELEASE
+      # ============================================
 
       - name: Release update-1.4 into main
         if: steps.release.outputs.ready == 'yes'
@@ -93,16 +143,18 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
           echo "===================================="
-          echo "PREPARING RELEASE"
+          echo "SCHEDULED RELEASE"
           echo "VERSION: $VERSION"
           echo "===================================="
 
-          git checkout -B main origin/main
+          # ============================================
+          # CHECK CURRENT VERSION
+          # ============================================
 
-          # Check already released version
           CURRENT_VERSION=""
 
           if git show origin/main:version.json > /tmp/current-version.json 2>/dev/null; then
+
             CURRENT_VERSION=$(python - <<'PY'
           import json
 
@@ -111,10 +163,12 @@ jobs:
                   data = json.load(f)
 
               print(data.get("version", ""))
+
           except Exception:
               print("")
           PY
             )
+
           fi
 
           echo "Current main version: ${CURRENT_VERSION:-none}"
@@ -122,112 +176,45 @@ jobs:
 
           # Prevent duplicate release
           if [ "$CURRENT_VERSION" = "$VERSION" ]; then
-            echo "Version $VERSION is already released."
-            echo "Nothing to do."
+
+            echo "===================================="
+            echo "VERSION $VERSION ALREADY RELEASED"
+            echo "===================================="
+
             exit 0
           fi
 
+          # ============================================
+          # RESET LOCAL MAIN
+          # ============================================
+
+          git checkout -B main origin/main
+
+          # ============================================
+          # CREATE TEMPORARY TREE FROM update-1.4
+          # ============================================
+
           echo "===================================="
-          echo "MERGING ALL update-1.4 CHANGES"
+          echo "COPYING COMPLETE update-1.4 TREE"
           echo "===================================="
 
-          set +e
+          git read-tree --reset -u origin/update-1.4
 
-          git merge origin/update-1.4 \
-            --no-edit \
-            -X theirs \
-            -m "Release v$VERSION"
+          # ============================================
+          # REMOVE update.json
+          # ============================================
 
-          MERGE_STATUS=$?
+          echo "Removing update.json..."
 
-          set -e
+          rm -f update.json
 
-          # ------------------------------------------------
-          # update.json conflict
-          # ------------------------------------------------
-          #
-          # main deleted update.json
-          # update-1.4 modified update.json
-          #
-          # Final main MUST NOT contain update.json.
-          #
+          git rm --cached --ignore-unmatch update.json
 
-          if git ls-files -u -- update.json | grep -q .; then
-            echo "Resolving update.json conflict..."
+          echo "update.json excluded."
 
-            git rm -f -- update.json
-
-            echo "update.json removed."
-          fi
-
-          # ------------------------------------------------
-          # Resolve other conflicts
-          # ------------------------------------------------
-
-          CONFLICTS=$(git diff --name-only --diff-filter=U || true)
-
-          if [ -n "$CONFLICTS" ]; then
-
-            echo "Remaining conflicts:"
-            echo "$CONFLICTS"
-
-            while IFS= read -r FILE; do
-
-              [ -z "$FILE" ] && continue
-
-              if [ "$FILE" = "update.json" ]; then
-                continue
-              fi
-
-              echo "Using update-1.4 version: $FILE"
-
-              git checkout --theirs -- "$FILE"
-              git add -- "$FILE"
-
-            done <<< "$CONFLICTS"
-
-          fi
-
-          # ------------------------------------------------
-          # Final conflict check
-          # ------------------------------------------------
-
-          if git diff --name-only --diff-filter=U | grep -q .; then
-
-            echo "===================================="
-            echo "ERROR: UNRESOLVED CONFLICTS"
-            echo "===================================="
-
-            git diff --name-only --diff-filter=U
-
-            exit 1
-          fi
-
-          # ------------------------------------------------
-          # Finish merge
-          # ------------------------------------------------
-
-          if [ "$MERGE_STATUS" -ne 0 ]; then
-            git commit -m "Release v$VERSION"
-          fi
-
-          # ------------------------------------------------
-          # Make absolutely sure update.json is removed
-          # ------------------------------------------------
-
-          if git ls-files --error-unmatch update.json >/dev/null 2>&1; then
-
-            echo "Removing update.json from main..."
-
-            git rm -f -- update.json
-
-            git commit -m "Remove update.json after release v$VERSION"
-
-          fi
-
-          # ------------------------------------------------
-          # Create version.json
-          # ------------------------------------------------
+          # ============================================
+          # CREATE version.json
+          # ============================================
 
           RELEASED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
@@ -238,16 +225,32 @@ jobs:
           }
           EOF
 
-          git add version.json
-
-          git commit -m "Set version.json for v$VERSION"
-
-          # ------------------------------------------------
-          # Push complete release
-          # ------------------------------------------------
+          # ============================================
+          # SHOW WHAT WILL BE RELEASED
+          # ============================================
 
           echo "===================================="
-          echo "PUSHING COMPLETE RELEASE"
+          echo "FILES FROM update-1.4 ARE NOW IN MAIN"
+          echo "EXCEPT update.json"
+          echo "===================================="
+
+          git status --short
+
+          # ============================================
+          # COMMIT COMPLETE SNAPSHOT
+          # ============================================
+
+          git add -A
+
+          git commit \
+            -m "Release v$VERSION from update-1.4"
+
+          # ============================================
+          # PUSH TO MAIN
+          # ============================================
+
+          echo "===================================="
+          echo "PUSHING COMPLETE UPDATE"
           echo "===================================="
 
           git push origin HEAD:main
@@ -255,10 +258,21 @@ jobs:
           echo "===================================="
           echo "UPDATE v$VERSION RELEASED SUCCESSFULLY"
           echo "===================================="
-          echo "ALL update-1.4 CHANGES -> main"
-          echo "update.json -> REMOVED"
-          echo "version.json -> CREATED"
+
+          echo "All update-1.4 files:"
+          echo "  -> copied to main"
+
+          echo "update.json:"
+          echo "  -> excluded"
+
+          echo "version.json:"
+          echo "  -> created"
+
           echo "===================================="
+
+      # ============================================
+      # NOT READY
+      # ============================================
 
       - name: Wait for scheduled release
         if: steps.release.outputs.ready == 'no'
@@ -266,4 +280,7 @@ jobs:
           echo "===================================="
           echo "UPDATE NOT READY YET"
           echo "===================================="
+
           echo "Next scheduled check will try again."
+
+          echo "===================================="
