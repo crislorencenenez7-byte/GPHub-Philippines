@@ -1,288 +1,165 @@
-/* ============================================================
-   app.js — Golden Pride Hub
-   Rebuilt core UI controller
-
-   Goals:
-   - NEVER leave #loading-screen stuck forever.
-   - Mobile navigation.
-   - Scroll-to-top button.
-   - Safe toast/confirm helpers for existing pages.
-   - Safe Service Worker registration.
-   - No controllerchange reload loop.
-   ============================================================ */
-
 (() => {
   "use strict";
 
-  const CONFIG = Object.freeze({
-    serviceWorker: "./sw.js",
-    swTimeoutMs: 3500
-  });
+  const $ = (id) => document.getElementById(id);
 
-  /* ------------------------------------------------------------
-     Loading screen
-     The public page must remain usable even if Firebase,
-     Firestore, an image, or a network request fails.
-     ------------------------------------------------------------ */
-
-  function hideLoadingScreen() {
-    const screen = document.getElementById("loading-screen");
-    if (!screen) return;
-
-    screen.classList.add("hide");
-
-    window.setTimeout(() => {
-      screen.remove();
-    }, 500);
+  function hideLoader() {
+    const loader = $("loading-screen");
+    if (loader) {
+      loader.classList.add("hide");
+      setTimeout(() => loader.remove(), 500);
+    }
   }
 
-  function scheduleLoaderSafety() {
-    /* Hard upper bound: no infinite spinner. */
-    window.setTimeout(hideLoadingScreen, 1800);
+  // Never allow a network/Firebase problem to leave the loader forever.
+  window.addEventListener("load", hideLoader);
+  setTimeout(hideLoader, 2500);
+
+  $("year").textContent = new Date().getFullYear();
+
+  // Mobile navigation
+  const toggle = $("nav-toggle");
+  const menu = $("nav-menu");
+
+  function closeMenu() {
+    if (!menu || !toggle) return;
+    menu.classList.remove("open");
+    toggle.classList.remove("open");
+    toggle.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("menu-open");
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
-    hideLoadingScreen();
-    scheduleLoaderSafety();
-  });
-
-  window.addEventListener("load", hideLoadingScreen);
-
-  /* ------------------------------------------------------------
-     Mobile navigation
-     ------------------------------------------------------------ */
-
-  function initNavigation() {
-    const toggle = document.querySelector(".nav-toggle");
-    const menu = document.querySelector(".nav-menu");
-
-    if (!toggle || !menu) return;
-
+  if (toggle && menu) {
     toggle.addEventListener("click", () => {
-      const open = menu.classList.toggle("open");
+      const open = !menu.classList.contains("open");
+      menu.classList.toggle("open", open);
       toggle.classList.toggle("open", open);
       toggle.setAttribute("aria-expanded", String(open));
+      document.body.classList.toggle("menu-open", open);
     });
 
-    menu.querySelectorAll("a").forEach((link) => {
-      link.addEventListener("click", () => {
-        menu.classList.remove("open");
-        toggle.classList.remove("open");
-        toggle.setAttribute("aria-expanded", "false");
-      });
+    menu.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 900) closeMenu();
     });
   }
 
-  /* ------------------------------------------------------------
-     Scroll to top
-     ------------------------------------------------------------ */
-
-  function initScrollTop() {
-    const button = document.getElementById("scroll-top");
-    if (!button) return;
-
-    const sync = () => {
-      button.classList.toggle("visible", window.scrollY > 450);
-    };
-
-    window.addEventListener("scroll", sync, { passive: true });
-
-    button.addEventListener("click", () => {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth"
-      });
-    });
-
-    sync();
+  // Release banner
+  async function loadRelease() {
+    const target = $("release-text");
+    try {
+      const res = await fetch("version.json?ts=" + Date.now(), { cache: "no-store" });
+      if (!res.ok) throw new Error("version.json " + res.status);
+      const data = await res.json();
+      target.textContent = data.updateName
+        ? `${data.updateName}${data.version ? " • Version " + data.version : ""}`
+        : "Golden Pride Hub";
+    } catch {
+      target.textContent = "Golden Pride Hub";
+    }
   }
 
-  /* ------------------------------------------------------------
-     Gold bubble animation
-     Created with CSS spans already present in index.html.
-     This helper only adds a little pointer parallax on desktop.
-     ------------------------------------------------------------ */
+  // Countdown — deliberately uses the update-1.4 BRANCH, not a folder
+  // in the published main branch.
+  const UPDATE_URL =
+    "https://raw.githubusercontent.com/crislorencenenez7-byte/GPHub-Philippines/update-1.4/update.json";
 
-  function initBubbleParallax() {
-    const bubbles = document.querySelectorAll(".gold-bubbles span");
-    if (!bubbles.length || window.matchMedia("(pointer: coarse)").matches) {
+  let releaseMs = null;
+  let updateData = null;
+
+  const pad = n => String(Math.max(0, n)).padStart(2, "0");
+
+  function renderCountdown() {
+    if (!Number.isFinite(releaseMs)) return;
+
+    const diff = releaseMs - Date.now();
+    const card = $("update-card");
+
+    if (diff <= 0) {
+      $("days").textContent = "00";
+      $("hours").textContent = "00";
+      $("minutes").textContent = "00";
+      $("seconds").textContent = "00";
+      $("update-status").textContent =
+        `${updateData?.updateName || "Update"} is now live.`;
+      card?.classList.add("update-live");
       return;
     }
 
-    let raf = null;
-    let mouseX = 0;
-    let mouseY = 0;
+    card?.classList.remove("update-live");
 
-    window.addEventListener("mousemove", (event) => {
-      mouseX = (event.clientX / window.innerWidth) - 0.5;
-      mouseY = (event.clientY / window.innerHeight) - 0.5;
+    const total = Math.floor(diff / 1000);
+    $("days").textContent = pad(Math.floor(total / 86400));
+    $("hours").textContent = pad(Math.floor((total % 86400) / 3600));
+    $("minutes").textContent = pad(Math.floor((total % 3600) / 60));
+    $("seconds").textContent = pad(total % 60);
 
-      if (raf) return;
-
-      raf = requestAnimationFrame(() => {
-        bubbles.forEach((bubble, index) => {
-          const strength = 4 + (index % 5);
-          bubble.style.setProperty(
-            "--mx",
-            `${mouseX * strength}px`
-          );
-          bubble.style.setProperty(
-            "--my",
-            `${mouseY * strength}px`
-          );
-        });
-
-        raf = null;
-      });
-    }, { passive: true });
+    $("update-status").textContent =
+      `Releasing ${updateData.releaseDate} at ${updateData.releaseTime} PH`;
   }
 
-  /* ------------------------------------------------------------
-     Toast helper
-     Existing pages can continue calling showToast().
-     ------------------------------------------------------------ */
-
-  function showToast(message, type = "info", duration = 3200) {
-    let container = document.getElementById("toast-container");
-
-    if (!container) {
-      container = document.createElement("div");
-      container.id = "toast-container";
-      document.body.appendChild(container);
-    }
-
-    const toast = document.createElement("div");
-    toast.className = `toast toast-${type}`;
-
-    const iconMap = {
-      success: "fa-circle-check",
-      error: "fa-circle-xmark",
-      warning: "fa-triangle-exclamation",
-      info: "fa-circle-info"
-    };
-
-    const icon = iconMap[type] || iconMap.info;
-
-    toast.innerHTML = `
-      <i class="fa-solid ${icon}" aria-hidden="true"></i>
-      <span></span>
-    `;
-
-    toast.querySelector("span").textContent = String(message);
-    container.appendChild(toast);
-
-    requestAnimationFrame(() => toast.classList.add("show"));
-
-    window.setTimeout(() => {
-      toast.classList.remove("show");
-      window.setTimeout(() => toast.remove(), 350);
-    }, duration);
-  }
-
-  window.showToast = showToast;
-
-  /* ------------------------------------------------------------
-     Confirm helper
-     Existing auth/admin pages may call confirmDialog().
-     ------------------------------------------------------------ */
-
-  function confirmDialog(message = "Are you sure?") {
-    return new Promise((resolve) => {
-      const overlay = document.createElement("div");
-      overlay.className = "confirm-overlay show";
-
-      overlay.innerHTML = `
-        <div class="confirm-box glass">
-          <p></p>
-          <div class="confirm-actions">
-            <button type="button" class="btn btn-outline" data-confirm="no">
-              Cancel
-            </button>
-            <button type="button" class="btn btn-primary" data-confirm="yes">
-              Confirm
-            </button>
-          </div>
-        </div>
-      `;
-
-      overlay.querySelector("p").textContent = String(message);
-      document.body.appendChild(overlay);
-
-      const finish = (value) => {
-        overlay.remove();
-        resolve(value);
-      };
-
-      overlay.addEventListener("click", (event) => {
-        if (event.target === overlay) finish(false);
-
-        const action = event.target.closest("[data-confirm]");
-        if (!action) return;
-
-        finish(action.dataset.confirm === "yes");
-      });
-    });
-  }
-
-  window.confirmDialog = confirmDialog;
-
-  /* ------------------------------------------------------------
-     Service Worker
-     IMPORTANT:
-     Do NOT force window.location.reload() from controllerchange.
-     That pattern can cause an infinite reload loop on GitHub Pages.
-     ------------------------------------------------------------ */
-
-  async function registerServiceWorker() {
-    if (!("serviceWorker" in navigator)) return;
-
+  async function loadUpdate() {
     try {
-      const registration = await navigator.serviceWorker.register(
-        CONFIG.serviceWorker,
-        { scope: "./" }
-      );
+      const res = await fetch(UPDATE_URL + "?ts=" + Date.now(), {
+        cache: "no-store"
+      });
+      if (!res.ok) throw new Error("update.json " + res.status);
 
-      console.log(
-        "[SW] registered:",
-        registration.scope
-      );
+      const data = await res.json();
 
-      /* Ask a waiting worker to activate when the user explicitly
-         returns to the page after an update. No reload loop. */
-      if (registration.waiting) {
-        console.log("[SW] update waiting.");
+      if (!data.releaseDate || !data.releaseTime) {
+        throw new Error("Missing releaseDate/releaseTime");
       }
 
-      registration.addEventListener("updatefound", () => {
-        const worker = registration.installing;
-        if (!worker) return;
+      const releaseString =
+        `${data.releaseDate}T${data.releaseTime}:00+08:00`;
+      const parsed = new Date(releaseString).getTime();
 
-        worker.addEventListener("statechange", () => {
-          if (worker.state === "installed" && navigator.serviceWorker.controller) {
-            console.log("[SW] new version installed; refresh when convenient.");
-          }
-        });
-      });
+      if (!Number.isFinite(parsed)) {
+        throw new Error("Invalid release date/time");
+      }
 
-      /* Low-frequency update check. */
-      window.setTimeout(() => {
-        registration.update().catch(() => {});
-      }, 15000);
-    } catch (error) {
-      console.warn("[SW] registration skipped:", error);
+      updateData = data;
+      releaseMs = parsed;
+
+      $("update-title").textContent =
+        data.updateName || "Scheduled Update";
+      $("update-description").textContent =
+        data.version ? `Version ${data.version}` : "Upcoming release";
+      $("update-version").textContent =
+        data.version ? `UPDATE ${data.version}` : "UPDATE";
+
+      renderCountdown();
+    } catch (err) {
+      console.error("Countdown load failed:", err);
+      $("update-title").textContent = "Release schedule unavailable";
+      $("update-description").textContent =
+        "The countdown source could not be reached.";
+      $("update-status").textContent =
+        "Check the update-1.4 branch and update.json.";
     }
   }
 
-  /* ------------------------------------------------------------
-     Initialization
-     ------------------------------------------------------------ */
+  loadRelease();
+  loadUpdate();
 
-  document.addEventListener("DOMContentLoaded", () => {
-    initNavigation();
-    initScrollTop();
-    initBubbleParallax();
+  // Refresh the JSON occasionally so editing the schedule is reflected.
+  setInterval(loadUpdate, 30000);
+  setInterval(renderCountdown, 1000);
 
-    /* Start SW after the visible UI is already available. */
-    window.setTimeout(registerServiceWorker, 250);
-  });
+  // Scroll-to-top
+  const top = $("scroll-top");
+  window.addEventListener("scroll", () => {
+    top?.classList.toggle("show", window.scrollY > 500);
+  }, { passive: true });
+  top?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+
+  // Service worker: register only; no forced reload loop.
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(err =>
+        console.warn("Service worker registration failed:", err)
+      );
+    });
+  }
 })();
