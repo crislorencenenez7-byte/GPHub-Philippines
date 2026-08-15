@@ -1,139 +1,65 @@
 name: Scheduled Release
 
 on:
-  schedule:
-    - cron: "*/5 * * * *"
-
   workflow_dispatch:
-
-  repository_dispatch:
-    types: [scheduled-release]
-
-permissions:
-  contents: write
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout main
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
-      - name: Check release time
-        id: release
-        shell: bash
+      - name: Configure Git
         run: |
-          set -e
-
-          git fetch origin update-1.4
-
-          python - <<'PY'
-          import json
-          import subprocess
-          from datetime import datetime, timezone
-
-          raw = subprocess.check_output(
-              ["git", "show", "origin/update-1.4:update.json"],
-              text=True
-          )
-
-          data = json.loads(raw)
-
-          release_time = datetime.fromisoformat(
-              data["releaseDate"] + "T" +
-              data["releaseTime"] + ":00+08:00"
-          )
-
-          now = datetime.now(timezone.utc)
-
-          print("Current UTC:", now)
-          print("Release time:", release_time)
-          print("Version:", data["version"])
-          print("Update:", data["updateName"])
-
-          if now >= release_time:
-              with open("/tmp/release-ready", "w") as f:
-                  f.write("yes")
-
-              print("RELEASE READY")
-          else:
-              with open("/tmp/release-ready", "w") as f:
-                  f.write("no")
-
-              print("NOT YET RELEASED")
-          PY
-
-          echo "ready=$(cat /tmp/release-ready)" >> "$GITHUB_OUTPUT"
-
-      - name: Release update
-        if: steps.release.outputs.ready == 'yes'
-        shell: bash
-        run: |
-          set -e
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin
+      - name: Read scheduled update
+        run: |
+          git fetch origin update-1.4
 
-          git checkout main
-          git reset --hard origin/main
+          git show origin/update-1.4:update.json > /tmp/update.json
+
+          VERSION=$(jq -r '.version' /tmp/update.json)
+          UPDATE_NAME=$(jq -r '.updateName' /tmp/update.json)
+
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "UPDATE_NAME=$UPDATE_NAME" >> "$GITHUB_ENV"
 
           echo "================================="
           echo "Starting scheduled release..."
           echo "================================="
-
-          # Get release information
-          git show origin/update-1.4:update.json > /tmp/update.json
-
-          VERSION=$(python -c "import json; print(json.load(open('/tmp/update.json'))['version'])")
-
-          UPDATE_NAME=$(python -c "import json; print(json.load(open('/tmp/update.json'))['updateName'])")
-
           echo "Releasing version: $VERSION"
           echo "Update: $UPDATE_NAME"
 
-          # Merge release branch.
-          # Keep main's version.json during merge.
-          git merge origin/update-1.4 \
-            --no-edit \
-            -X ours \
-            --no-commit
+      - name: Update version.json
+        run: |
+          jq \
+            --arg version "$VERSION" \
+            --arg updateName "$UPDATE_NAME" \
+            '.version = $version | .updateName = $updateName | .status = "released"' \
+            version.json > version.tmp.json
 
-          # Remove update.json from main.
-          if [ -f update.json ]; then
-            git rm -f update.json
+          mv version.tmp.json version.json
+
+      - name: Commit release
+        run: |
+          git add version.json
+
+          if git diff --cached --quiet; then
+            echo "No version.json changes to commit."
+          else
+            git commit -m "Release version $VERSION"
           fi
 
-          # Create the new version.json.
-          RELEASED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-          cat > version.json <<EOF
-          {
-            "version": "$VERSION",
-            "updateName": "$UPDATE_NAME",
-            "releasedAt": "$RELEASED_AT"
-          }
-          EOF
-
-          git add -A
-
-          git commit -m "Release $VERSION"
-
-          git push origin main
-
-          echo "================================="
-          echo "SCHEDULED RELEASE SUCCESSFUL"
-          echo "Version: $VERSION"
-          echo "Update: $UPDATE_NAME"
-          echo "Released: $RELEASED_AT"
-          echo "================================="
-
-      - name: Wait for release time
-        if: steps.release.outputs.ready == 'no'
+      - name: Push release
         run: |
-          echo "Update is not ready yet."
-          echo "Next scheduled check will try again."
+          git push origin main
