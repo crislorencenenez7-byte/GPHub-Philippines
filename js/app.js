@@ -1,165 +1,118 @@
 (() => {
   "use strict";
 
-  const $ = (id) => document.getElementById(id);
+  const VERSION = "3.4";
+  const UPDATE_URL = "update-1.4/update.json";
+  const VERSION_URL = "version.json";
 
-  function hideLoader() {
-    const loader = $("loading-screen");
-    if (loader) {
-      loader.classList.add("hide");
-      setTimeout(() => loader.remove(), 500);
-    }
+  const $ = id => document.getElementById(id);
+
+  function setText(id, value) {
+    const el = $(id);
+    if (el) el.textContent = value;
   }
 
-  // Never allow a network/Firebase problem to leave the loader forever.
-  window.addEventListener("load", hideLoader);
-  setTimeout(hideLoader, 2500);
-
-  $("year").textContent = new Date().getFullYear();
-
-  // Mobile navigation
-  const toggle = $("nav-toggle");
-  const menu = $("nav-menu");
-
-  function closeMenu() {
-    if (!menu || !toggle) return;
-    menu.classList.remove("open");
-    toggle.classList.remove("open");
-    toggle.setAttribute("aria-expanded", "false");
-    document.body.classList.remove("menu-open");
-  }
-
-  if (toggle && menu) {
-    toggle.addEventListener("click", () => {
-      const open = !menu.classList.contains("open");
-      menu.classList.toggle("open", open);
-      toggle.classList.toggle("open", open);
-      toggle.setAttribute("aria-expanded", String(open));
-      document.body.classList.toggle("menu-open", open);
+  async function fetchJson(url) {
+    const response = await fetch(`${url}${url.includes("?") ? "&" : "?"}ts=${Date.now()}`, {
+      cache: "no-store",
+      headers: { "Accept": "application/json" }
     });
-
-    menu.querySelectorAll("a").forEach(a => a.addEventListener("click", closeMenu));
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 900) closeMenu();
-    });
+    if (!response.ok) throw new Error(`HTTP ${response.status}: ${url}`);
+    return response.json();
   }
 
-  // Release banner
-  async function loadRelease() {
-    const target = $("release-text");
-    try {
-      const res = await fetch("version.json?ts=" + Date.now(), { cache: "no-store" });
-      if (!res.ok) throw new Error("version.json " + res.status);
-      const data = await res.json();
-      target.textContent = data.updateName
-        ? `${data.updateName}${data.version ? " • Version " + data.version : ""}`
-        : "Golden Pride Hub";
-    } catch {
-      target.textContent = "Golden Pride Hub";
-    }
+  function parseReleaseDate(date, time) {
+    if (!date || !time) throw new Error("releaseDate/releaseTime missing");
+    const iso = `${date}T${time}:00+08:00`;
+    const parsed = new Date(iso);
+    if (Number.isNaN(parsed.getTime())) throw new Error(`Invalid release date/time: ${iso}`);
+    return parsed;
   }
 
-  // Countdown — deliberately uses the update-1.4 BRANCH, not a folder
-  // in the published main branch.
-  const UPDATE_URL =
-    "https://raw.githubusercontent.com/crislorencenenez7-byte/GPHub-Philippines/update-1.4/update.json";
-
-  let releaseMs = null;
-  let updateData = null;
-
-  const pad = n => String(Math.max(0, n)).padStart(2, "0");
-
-  function renderCountdown() {
-    if (!Number.isFinite(releaseMs)) return;
-
-    const diff = releaseMs - Date.now();
-    const card = $("update-card");
+  function renderCountdown(target, update) {
+    const diff = target.getTime() - Date.now();
 
     if (diff <= 0) {
-      $("days").textContent = "00";
-      $("hours").textContent = "00";
-      $("minutes").textContent = "00";
-      $("seconds").textContent = "00";
-      $("update-status").textContent =
-        `${updateData?.updateName || "Update"} is now live.`;
-      card?.classList.add("update-live");
-      return;
+      setText("days", "0");
+      setText("hours", "0");
+      setText("minutes", "0");
+      setText("seconds", "0");
+      setText("update-status", `${update.updateName || "Update"} • UPDATE IS NOW LIVE!`);
+      return true;
     }
 
-    card?.classList.remove("update-live");
-
     const total = Math.floor(diff / 1000);
-    $("days").textContent = pad(Math.floor(total / 86400));
-    $("hours").textContent = pad(Math.floor((total % 86400) / 3600));
-    $("minutes").textContent = pad(Math.floor((total % 3600) / 60));
-    $("seconds").textContent = pad(total % 60);
-
-    $("update-status").textContent =
-      `Releasing ${updateData.releaseDate} at ${updateData.releaseTime} PH`;
+    setText("days", Math.floor(total / 86400));
+    setText("hours", Math.floor((total % 86400) / 3600));
+    setText("minutes", Math.floor((total % 3600) / 60));
+    setText("seconds", total % 60);
+    setText("update-status", `Releasing ${update.releaseDate} at ${update.releaseTime} PH`);
+    return false;
   }
 
   async function loadUpdate() {
     try {
-      const res = await fetch(UPDATE_URL + "?ts=" + Date.now(), {
-        cache: "no-store"
-      });
-      if (!res.ok) throw new Error("update.json " + res.status);
+      const update = await fetchJson(UPDATE_URL);
 
-      const data = await res.json();
+      setText("update-name", update.updateName || "Upcoming Update");
+      setText("update-description", update.description || `Version ${update.version || VERSION}`);
+      setText("update-version", `VERSION ${update.version || VERSION}`);
 
-      if (!data.releaseDate || !data.releaseTime) {
-        throw new Error("Missing releaseDate/releaseTime");
-      }
+      const target = parseReleaseDate(update.releaseDate, update.releaseTime);
 
-      const releaseString =
-        `${data.releaseDate}T${data.releaseTime}:00+08:00`;
-      const parsed = new Date(releaseString).getTime();
+      if (renderCountdown(target, update)) return;
 
-      if (!Number.isFinite(parsed)) {
-        throw new Error("Invalid release date/time");
-      }
-
-      updateData = data;
-      releaseMs = parsed;
-
-      $("update-title").textContent =
-        data.updateName || "Scheduled Update";
-      $("update-description").textContent =
-        data.version ? `Version ${data.version}` : "Upcoming release";
-      $("update-version").textContent =
-        data.version ? `UPDATE ${data.version}` : "UPDATE";
-
-      renderCountdown();
-    } catch (err) {
-      console.error("Countdown load failed:", err);
-      $("update-title").textContent = "Release schedule unavailable";
-      $("update-description").textContent =
-        "The countdown source could not be reached.";
-      $("update-status").textContent =
-        "Check the update-1.4 branch and update.json.";
+      const timer = setInterval(() => {
+        if (renderCountdown(target, update)) clearInterval(timer);
+      }, 1000);
+    } catch (error) {
+      console.error("Countdown error:", error);
+      setText("update-name", "Update schedule unavailable");
+      setText("update-description", "The countdown could not read the update schedule.");
+      setText("update-version", `VERSION ${VERSION}`);
+      setText("update-status", "Check update-1.4/update.json");
+      const status = $("update-status");
+      if (status) status.classList.add("update-error");
     }
   }
 
-  loadRelease();
-  loadUpdate();
-
-  // Refresh the JSON occasionally so editing the schedule is reflected.
-  setInterval(loadUpdate, 30000);
-  setInterval(renderCountdown, 1000);
-
-  // Scroll-to-top
-  const top = $("scroll-top");
-  window.addEventListener("scroll", () => {
-    top?.classList.toggle("show", window.scrollY > 500);
-  }, { passive: true });
-  top?.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
-
-  // Service worker: register only; no forced reload loop.
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", () => {
-      navigator.serviceWorker.register("sw.js").catch(err =>
-        console.warn("Service worker registration failed:", err)
-      );
-    });
+  async function loadReleaseBanner() {
+    try {
+      const data = await fetchJson(VERSION_URL);
+      const version = data.version || VERSION;
+      const name = data.updateName || "Latest Release";
+      setText("release-banner", `UPDATE ${version} IS LIVE — ${name}`);
+    } catch (error) {
+      console.warn("Release banner error:", error);
+      setText("release-banner", `GOLDEN PRIDE HUB • VERSION ${VERSION}`);
+    }
   }
+
+  function setupNav() {
+    const toggle = document.querySelector(".nav-toggle");
+    const menu = document.querySelector(".nav-menu");
+    if (!toggle || !menu) return;
+    toggle.addEventListener("click", () => menu.classList.toggle("open"));
+  }
+
+  function setupYear() {
+    setText("year", new Date().getFullYear());
+  }
+
+  async function registerServiceWorker() {
+    if (!("serviceWorker" in navigator)) return;
+    try {
+      await navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" });
+    } catch (error) {
+      console.warn("Service worker registration failed:", error);
+    }
+  }
+
+  document.addEventListener("DOMContentLoaded", () => {
+    setupYear();
+    setupNav();
+    loadReleaseBanner();
+    loadUpdate();
+    registerServiceWorker();
+  });
 })();
