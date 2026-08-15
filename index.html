@@ -915,107 +915,478 @@ async function loadScheduledUpdate() {
           ) / 60
         );
 
+<script>
+document.getElementById("year").textContent =
+  new Date().getFullYear();
 
-      const s =
-        totalSeconds % 60;
+/* ============================================================
+   VERSION BANNER
+   ============================================================ */
+
+async function loadReleaseBanner() {
+  const banner = document.getElementById("release-banner-text");
+
+  try {
+    const response = await fetch(
+      "version.json?ts=" + Date.now(),
+      {
+        cache: "no-store"
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("version.json HTTP " + response.status);
+    }
+
+    const data = await response.json();
+
+    const version = data.version
+      ? `Version ${data.version}`
+      : "";
+
+    const updateName =
+      data.updateName || "Golden Pride Hub";
+
+    banner.textContent = version
+      ? `${updateName} • ${version}`
+      : updateName;
+
+  } catch (error) {
+    console.error("Version banner error:", error);
+    banner.textContent = "Golden Pride Hub";
+  }
+}
 
 
-      days.textContent =
-        String(d)
-          .padStart(2,"0");
+/* ============================================================
+   SCHEDULED UPDATE
+   SOURCE:
+   update-1.4/update.json
+   ============================================================ */
+
+async function loadScheduledUpdate() {
+
+  const updateName =
+    document.getElementById("update-name");
+
+  const updateVersion =
+    document.getElementById("update-version");
+
+  const description =
+    document.getElementById("update-description");
+
+  const status =
+    document.getElementById("update-status");
+
+  const days =
+    document.getElementById("count-days");
+
+  const hours =
+    document.getElementById("count-hours");
+
+  const minutes =
+    document.getElementById("count-minutes");
+
+  const seconds =
+    document.getElementById("count-seconds");
 
 
-      hours.textContent =
-        String(h)
-          .padStart(2,"0");
+  /*
+    IMPORTANT:
+
+    update.json stays on the update-1.4 branch.
+
+    Repository:
+    crislorencenenez7-byte/GPHub-Philippines
+
+    Branch:
+    update-1.4
+
+    File:
+    update.json
+  */
+
+  const RAW_URL =
+    "https://raw.githubusercontent.com/" +
+    "crislorencenenez7-byte/" +
+    "GPHub-Philippines/" +
+    "update-1.4/" +
+    "update.json?ts=" +
+    Date.now();
 
 
-      minutes.textContent =
-        String(m)
-          .padStart(2,"0");
+  const API_URL =
+    "https://api.github.com/repos/" +
+    "crislorencenenez7-byte/" +
+    "GPHub-Philippines/" +
+    "contents/update.json" +
+    "?ref=update-1.4&ts=" +
+    Date.now();
 
 
-      seconds.textContent =
-        String(s)
-          .padStart(2,"0");
+  let data = null;
 
 
-      status.textContent =
-        `Releasing ${data.releaseDate} ` +
-        `at ${data.releaseTime} PH`;
+  /* ==========================================================
+     METHOD 1 — RAW GITHUB
+     ========================================================== */
 
+  try {
+
+    const response = await fetch(
+      RAW_URL,
+      {
+        method: "GET",
+        cache: "no-store",
+        headers: {
+          "Accept": "application/json"
+        }
+      }
+    );
+
+
+    if (!response.ok) {
+      throw new Error(
+        "Raw GitHub HTTP " + response.status
+      );
     }
 
 
-    updateCountdown();
+    const text =
+      await response.text();
 
 
-    setInterval(
-      updateCountdown,
-      1000
+    if (!text.trim()) {
+      throw new Error(
+        "update.json is empty"
+      );
+    }
+
+
+    data = JSON.parse(text);
+
+
+    console.log(
+      "Loaded update.json from raw GitHub:",
+      data
+    );
+
+  } catch (rawError) {
+
+    console.warn(
+      "Raw update.json failed:",
+      rawError
     );
 
   }
 
-  catch(error) {
 
-    console.error(
-      "Scheduled update error:",
-      error
-    );
+  /* ==========================================================
+     METHOD 2 — GITHUB CONTENTS API FALLBACK
+     ========================================================== */
 
+  if (!data) {
+
+    try {
+
+      const response = await fetch(
+        API_URL,
+        {
+          method: "GET",
+          cache: "no-store",
+          headers: {
+            "Accept":
+              "application/vnd.github+json"
+          }
+        }
+      );
+
+
+      if (!response.ok) {
+        throw new Error(
+          "GitHub API HTTP " +
+          response.status
+        );
+      }
+
+
+      const result =
+        await response.json();
+
+
+      if (!result.content) {
+        throw new Error(
+          "GitHub API returned no file content"
+        );
+      }
+
+
+      /*
+        GitHub Contents API returns
+        base64 encoded content.
+      */
+
+      const binary =
+        atob(
+          result.content.replace(/\s/g, "")
+        );
+
+
+      const bytes =
+        Uint8Array.from(
+          binary,
+          char => char.charCodeAt(0)
+        );
+
+
+      const text =
+        new TextDecoder("utf-8")
+          .decode(bytes);
+
+
+      data =
+        JSON.parse(text);
+
+
+      console.log(
+        "Loaded update.json from GitHub API:",
+        data
+      );
+
+    } catch (apiError) {
+
+      console.error(
+        "GitHub API fallback failed:",
+        apiError
+      );
+
+    }
+
+  }
+
+
+  /* ==========================================================
+     FINAL VALIDATION
+     ========================================================== */
+
+  if (!data) {
 
     updateVersion.textContent =
       "UPDATE";
 
-
     updateName.textContent =
       "Update schedule unavailable";
 
-
     description.textContent =
-      "Unable to load scheduled update.";
+      "Unable to load the scheduled release information.";
 
-
-    days.textContent =
-      "--";
-
-    hours.textContent =
-      "--";
-
-    minutes.textContent =
-      "--";
-
-    seconds.textContent =
-      "--";
-
+    days.textContent = "--";
+    hours.textContent = "--";
+    minutes.textContent = "--";
+    seconds.textContent = "--";
 
     status.textContent =
       "Could not read update-1.4/update.json.";
 
+    return;
   }
 
+
+  /* ==========================================================
+     READ UPDATE DATA
+     ========================================================== */
+
+  const version =
+    String(data.version || "").trim();
+
+  const message =
+    String(
+      data.updateName ||
+      data.message ||
+      "Scheduled Update"
+    ).trim();
+
+  const releaseDate =
+    String(
+      data.releaseDate || ""
+    ).trim();
+
+  const releaseTime =
+    String(
+      data.releaseTime || ""
+    ).trim();
+
+
+  updateVersion.textContent =
+    version
+      ? `UPDATE ${version}`
+      : "UPDATE";
+
+
+  updateName.textContent =
+    message;
+
+
+  description.textContent =
+    version
+      ? `Version ${version}`
+      : "Scheduled Update";
+
+
+  /* ==========================================================
+     DATE/TIME VALIDATION
+     ========================================================== */
+
+  if (!releaseDate || !releaseTime) {
+
+    days.textContent = "--";
+    hours.textContent = "--";
+    minutes.textContent = "--";
+    seconds.textContent = "--";
+
+    status.textContent =
+      "releaseDate or releaseTime is missing from update.json.";
+
+    return;
+  }
+
+
+  /*
+    The project uses Philippine Time.
+
+    Example:
+    2026-08-15 + 12:30
+
+    becomes:
+    2026-08-15T12:30:00+08:00
+  */
+
+  const releaseString =
+    `${releaseDate}T${releaseTime}:00+08:00`;
+
+
+  const releaseTimestamp =
+    Date.parse(releaseString);
+
+
+  if (
+    Number.isNaN(
+      releaseTimestamp
+    )
+  ) {
+
+    days.textContent = "--";
+    hours.textContent = "--";
+    minutes.textContent = "--";
+    seconds.textContent = "--";
+
+    status.textContent =
+      "Invalid releaseDate or releaseTime in update.json.";
+
+    return;
+  }
+
+
+  /* ==========================================================
+     COUNTDOWN
+     ========================================================== */
+
+  function updateCountdown() {
+
+    const difference =
+      releaseTimestamp -
+      Date.now();
+
+
+    /* RELEASED */
+
+    if (difference <= 0) {
+
+      days.textContent = "00";
+      hours.textContent = "00";
+      minutes.textContent = "00";
+      seconds.textContent = "00";
+
+      status.textContent =
+        `${message} • UPDATE IS NOW LIVE!`;
+
+      return;
+    }
+
+
+    const totalSeconds =
+      Math.floor(
+        difference / 1000
+      );
+
+
+    const d =
+      Math.floor(
+        totalSeconds / 86400
+      );
+
+
+    const h =
+      Math.floor(
+        (totalSeconds % 86400) /
+        3600
+      );
+
+
+    const m =
+      Math.floor(
+        (totalSeconds % 3600) /
+        60
+      );
+
+
+    const s =
+      totalSeconds % 60;
+
+
+    days.textContent =
+      String(d).padStart(2, "0");
+
+    hours.textContent =
+      String(h).padStart(2, "0");
+
+    minutes.textContent =
+      String(m).padStart(2, "0");
+
+    seconds.textContent =
+      String(s).padStart(2, "0");
+
+
+    status.textContent =
+      `Releasing ${releaseDate} ` +
+      `at ${releaseTime} PH`;
+  }
+
+
+  updateCountdown();
+
+
+  setInterval(
+    updateCountdown,
+    1000
+  );
 }
 
 
 /* ============================================================
    ANNOUNCEMENT PREVIEW
-   Firebase failure is independent from countdown.
    ============================================================ */
 
 function initPreview() {
 
   if (
-    typeof loadRecentAnnouncementPreview ===
-      "function" &&
+    typeof loadRecentAnnouncementPreview === "function" &&
     typeof db !== "undefined"
   ) {
 
     loadRecentAnnouncementPreview();
 
-  }
-
-  else {
+  } else {
 
     setTimeout(
       initPreview,
@@ -1023,7 +1394,6 @@ function initPreview() {
     );
 
   }
-
 }
 
 
@@ -1037,8 +1407,7 @@ loadScheduledUpdate();
 
 
 if (
-  document.readyState ===
-  "loading"
+  document.readyState === "loading"
 ) {
 
   document.addEventListener(
@@ -1046,15 +1415,12 @@ if (
     initPreview
   );
 
-}
-
-else {
+} else {
 
   initPreview();
 
 }
-
 </script>
-
+  
 </body>
 </html>
