@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: scheduled-release
+  cancel-in-progress: false
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -16,13 +20,18 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
+          persist-credentials: true
+
+      - name: Fetch update branch
+        run: |
+          git fetch origin main update-1.4 --prune
 
       - name: Check release time
         id: release
+        shell: bash
         run: |
-          git fetch origin update-1.4
-
           python - <<'PY'
           import json
           import subprocess
@@ -35,6 +44,8 @@ jobs:
 
           data = json.loads(raw)
 
+          version = str(data["version"])
+
           release_time = datetime.fromisoformat(
               data["releaseDate"] + "T" +
               data["releaseTime"] + ":00+08:00"
@@ -44,96 +55,106 @@ jobs:
 
           print("Current UTC:", now)
           print("Release time:", release_time)
-          print("Version:", data["version"])
+          print("Version:", version)
+
+          with open("/tmp/release-ready", "w") as f:
+              f.write("yes" if now >= release_time else "no")
 
           with open("/tmp/version", "w") as f:
-              f.write(data["version"])
+              f.write(version)
 
-          if now >= release_time:
-              with open("/tmp/release-ready", "w") as f:
-                  f.write("yes")
-              print("RELEASE READY")
-          else:
-              with open("/tmp/release-ready", "w") as f:
-                  f.write("no")
-              print("NOT YET RELEASED")
+          print(
+              "RELEASE READY"
+              if now >= release_time
+              else
+              "NOT YET RELEASED"
+          )
           PY
 
           echo "ready=$(cat /tmp/release-ready)" >> "$GITHUB_OUTPUT"
           echo "version=$(cat /tmp/version)" >> "$GITHUB_OUTPUT"
 
-      - name: Merge update-1.4 into main
+      - name: Release update-1.4 into main
         if: steps.release.outputs.ready == 'yes'
+        shell: bash
         run: |
+          set -euo pipefail
+
+          VERSION="${{ steps.release.outputs.version }}"
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin
+          # Check if this version was already released.
+          CURRENT_VERSION=""
 
-          git checkout main
-          git pull origin main
+          if git show origin/main:version.json > /tmp/current-version.json 2>/dev/null; then
+            CURRENT_VERSION=$(python - <<'PY'
+          import json
 
-          echo "Merging update-1.4 into main..."
-
-          if git merge origin/update-1.4 --no-edit; then
-            echo "Merge completed without conflicts."
-          else
-            echo "Merge conflict detected. Resolving..."
-
-            # Keep the update-1.4 version of style.css
-            if git ls-files -u -- css/style.css | grep -q .; then
-              git checkout --theirs -- css/style.css
-              git add css/style.css
-              echo "Resolved css/style.css using update-1.4."
-            fi
-
-            # update.json is only used to schedule the release.
-            # It must not remain in main after release.
-            if git ls-files -u -- update.json | grep -q .; then
-              git rm -f update.json
-              echo "Resolved update.json by deleting it."
-            elif [ -f update.json ]; then
-              git rm -f update.json
-            fi
-
-            # Make sure there are no other unresolved conflicts
-            if git diff --name-only --diff-filter=U | grep -q .; then
-              echo "ERROR: Other unresolved merge conflicts remain:"
-              git diff --name-only --diff-filter=U
-              exit 1
-            fi
-
-            git commit -m "Release scheduled update"
+          try:
+              with open("/tmp/current-version.json") as f:
+                  print(json.load(f).get("version", ""))
+          except Exception:
+              print("")
+          PY
+            )
           fi
 
-          # Make absolutely sure update.json is removed from main
-          if [ -f update.json ]; then
+          if [ "$CURRENT_VERSION" = "$VERSION" ]; then
+            echo "Version $VERSION is already released."
+            echo "Nothing to do."
+            exit 0
+          fi
+
+          git checkout -B main origin/main
+
+          echo "===================================="
+          echo "Merging ALL update-1.4 changes..."
+          echo "Version: $VERSION"
+          echo "===================================="
+
+          # Merge the COMPLETE update-1.4 branch.
+          # -X theirs prefers update-1.4 when a file has a merge conflict.
+          if ! git merge origin/update-1.4 \
+              --no-edit \
+              -X theirs \
+              -m "Release v$VERSION"; then
+
+            echo "ERROR: Merge failed."
+            echo "Unresolved conflicts:"
+
+            git diff --name-only --diff-filter=U || true
+
+            exit 1
+          fi
+
+          # update.json is only the scheduler input.
+          # Never leave it in main.
+          if git ls-files --error-unmatch update.json >/dev/null 2>&1; then
             git rm -f update.json
-            git commit -m "Remove release schedule file"
+            git commit -m "Remove update.json after release v$VERSION"
           fi
 
-          # Create version.json
+          # Create permanent version.json in main.
           RELEASED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
           cat > version.json <<EOF
           {
-            "version": "${{ steps.release.outputs.version }}",
-            "releasedAt": "${RELEASED_AT}"
+            "version": "$VERSION",
+            "releasedAt": "$RELEASED_AT"
           }
           EOF
 
           git add version.json
+          git commit -m "Set version.json for v$VERSION"
 
-          if git diff --cached --quiet; then
-            echo "version.json already up to date."
-          else
-            git commit -m "Release v${{ steps.release.outputs.version }}"
-          fi
-
-          git push origin main
+          # Push EVERYTHING merged from update-1.4 into main.
+          git push origin HEAD:main
 
           echo "===================================="
-          echo "UPDATE ${{ steps.release.outputs.version }} RELEASED SUCCESSFULLY"
+          echo "UPDATE $VERSION RELEASED SUCCESSFULLY"
+          echo "ALL update-1.4 CHANGES ARE NOW IN main"
           echo "===================================="
 
       - name: Wait for scheduled release
