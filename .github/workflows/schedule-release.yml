@@ -2,285 +2,77 @@ name: Scheduled Release
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
-
+    - cron: "*/10 * * * *"
   workflow_dispatch:
-
-  repository_dispatch:
-    types: [scheduled-release]
 
 permissions:
   contents: write
-
-concurrency:
-  group: scheduled-release
-  cancel-in-progress: false
 
 jobs:
   release:
     runs-on: ubuntu-latest
 
     steps:
-
-      # ============================================
-      # CHECKOUT MAIN
-      # ============================================
-
       - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: main
           fetch-depth: 0
-          persist-credentials: true
-
-      # ============================================
-      # FETCH BOTH BRANCHES
-      # ============================================
-
-      - name: Fetch branches
-        run: |
-          git fetch origin main update-1.4 --prune
-
-      # ============================================
-      # CHECK RELEASE TIME
-      # ============================================
 
       - name: Check release time
         id: release
-        shell: bash
         run: |
-          set -euo pipefail
+          git fetch origin update-1.4
 
-          python - <<'PY' > /tmp/release-output
+          python - <<'PY'
           import json
           import subprocess
-          import sys
           from datetime import datetime, timezone
 
           raw = subprocess.check_output(
-              [
-                  "git",
-                  "show",
-                  "origin/update-1.4:update.json"
-              ],
+              ["git", "show", "origin/update-1.4:update.json"],
               text=True
           )
 
           data = json.loads(raw)
 
-          version = str(data["version"])
-
           release_time = datetime.fromisoformat(
-              data["releaseDate"]
-              + "T"
-              + data["releaseTime"]
-              + ":00+08:00"
+              data["releaseDate"] + "T" +
+              data["releaseTime"] + ":00+08:00"
           )
 
           now = datetime.now(timezone.utc)
 
-          ready = now >= release_time
+          print("Current UTC:", now)
+          print("Release time:", release_time)
+          print("Version:", data["version"])
 
-          # GitHub Actions outputs ONLY
-          print(f"version={version}")
-          print(f"ready={'yes' if ready else 'no'}")
-
-          # Logs
-          print(
-              "====================================",
-              file=sys.stderr
-          )
-
-          print(
-              "CURRENT UTC:",
-              now,
-              file=sys.stderr
-          )
-
-          print(
-              "RELEASE TIME:",
-              release_time,
-              file=sys.stderr
-          )
-
-          print(
-              "VERSION:",
-              version,
-              file=sys.stderr
-          )
-
-          print(
-              "READY:",
-              ready,
-              file=sys.stderr
-          )
-
-          print(
-              "====================================",
-              file=sys.stderr
-          )
+          if now >= release_time:
+              with open("/tmp/release-ready", "w") as f:
+                  f.write("yes")
+              print("RELEASE READY")
+          else:
+              with open("/tmp/release-ready", "w") as f:
+                  f.write("no")
+              print("NOT YET RELEASED")
           PY
 
-          cat /tmp/release-output >> "$GITHUB_OUTPUT"
+          echo "ready=$(cat /tmp/release-ready)" >> "$GITHUB_OUTPUT"
 
-          echo "===================================="
-          cat /tmp/release-output
-          echo "===================================="
-
-      # ============================================
-      # RELEASE
-      # ============================================
-
-      - name: Release update-1.4 into main
+      - name: Merge update-1.4 into main
         if: steps.release.outputs.ready == 'yes'
-        shell: bash
         run: |
-          set -euo pipefail
-
-          VERSION="${{ steps.release.outputs.version }}"
-
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          echo "===================================="
-          echo "SCHEDULED RELEASE"
-          echo "VERSION: $VERSION"
-          echo "===================================="
+          git fetch origin
 
-          # ============================================
-          # CHECK CURRENT VERSION
-          # ============================================
+          git checkout main
+          git merge origin/update-1.4 --no-edit
 
-          CURRENT_VERSION=""
-
-          if git show origin/main:version.json > /tmp/current-version.json 2>/dev/null; then
-
-            CURRENT_VERSION=$(python - <<'PY'
-          import json
-
-          try:
-              with open("/tmp/current-version.json") as f:
-                  data = json.load(f)
-
-              print(data.get("version", ""))
-
-          except Exception:
-              print("")
-          PY
-            )
-
-          fi
-
-          echo "Current main version: ${CURRENT_VERSION:-none}"
-          echo "Scheduled version: $VERSION"
-
-          # Prevent duplicate release
-          if [ "$CURRENT_VERSION" = "$VERSION" ]; then
-
-            echo "===================================="
-            echo "VERSION $VERSION ALREADY RELEASED"
-            echo "===================================="
-
-            exit 0
-          fi
-
-          # ============================================
-          # RESET LOCAL MAIN
-          # ============================================
-
-          git checkout -B main origin/main
-
-          # ============================================
-          # CREATE TEMPORARY TREE FROM update-1.4
-          # ============================================
-
-          echo "===================================="
-          echo "COPYING COMPLETE update-1.4 TREE"
-          echo "===================================="
-
-          git read-tree --reset -u origin/update-1.4
-
-          # ============================================
-          # REMOVE update.json
-          # ============================================
-
-          echo "Removing update.json..."
-
-          rm -f update.json
-
-          git rm --cached --ignore-unmatch update.json
-
-          echo "update.json excluded."
-
-          # ============================================
-          # CREATE version.json
-          # ============================================
-
-          RELEASED_AT=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-
-          cat > version.json <<EOF
-          {
-            "version": "$VERSION",
-            "releasedAt": "$RELEASED_AT"
-          }
-          EOF
-
-          # ============================================
-          # SHOW WHAT WILL BE RELEASED
-          # ============================================
-
-          echo "===================================="
-          echo "FILES FROM update-1.4 ARE NOW IN MAIN"
-          echo "EXCEPT update.json"
-          echo "===================================="
-
-          git status --short
-
-          # ============================================
-          # COMMIT COMPLETE SNAPSHOT
-          # ============================================
-
-          git add -A
-
-          git commit \
-            -m "Release v$VERSION from update-1.4"
-
-          # ============================================
-          # PUSH TO MAIN
-          # ============================================
-
-          echo "===================================="
-          echo "PUSHING COMPLETE UPDATE"
-          echo "===================================="
-
-          git push origin HEAD:main
-
-          echo "===================================="
-          echo "UPDATE v$VERSION RELEASED SUCCESSFULLY"
-          echo "===================================="
-
-          echo "All update-1.4 files:"
-          echo "  -> copied to main"
-
-          echo "update.json:"
-          echo "  -> excluded"
-
-          echo "version.json:"
-          echo "  -> created"
-
-          echo "===================================="
-
-      # ============================================
-      # NOT READY
-      # ============================================
+          git push origin main
 
       - name: Wait for scheduled release
         if: steps.release.outputs.ready == 'no'
         run: |
-          echo "===================================="
-          echo "UPDATE NOT READY YET"
-          echo "===================================="
-
+          echo "Update is not ready yet."
           echo "Next scheduled check will try again."
-
-          echo "===================================="
