@@ -3,6 +3,10 @@ name: Scheduled Release
 on:
   workflow_dispatch:
 
+  schedule:
+    # Check every 5 minutes
+    - cron: "*/5 * * * *"
+
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -11,55 +15,212 @@ jobs:
       contents: write
 
     steps:
+
+      # ==========================================================
+      # CHECKOUT MAIN
+      # ==========================================================
+
       - name: Checkout main
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
+
+      # ==========================================================
+      # CONFIGURE GIT
+      # ==========================================================
+
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-      - name: Read scheduled update
+
+      # ==========================================================
+      # GET UPDATE BRANCH
+      # ==========================================================
+
+      - name: Fetch update branch
         run: |
           git fetch origin update-1.4
 
+
+      # ==========================================================
+      # READ update.json
+      # ==========================================================
+
+      - name: Read scheduled update
+        run: |
+
           git show origin/update-1.4:update.json > /tmp/update.json
 
-          VERSION=$(jq -r '.version' /tmp/update.json)
-          UPDATE_NAME=$(jq -r '.updateName' /tmp/update.json)
+          VERSION=$(jq -r '.version // empty' /tmp/update.json)
+          UPDATE_NAME=$(jq -r '.updateName // empty' /tmp/update.json)
+          RELEASE_DATE=$(jq -r '.releaseDate // empty' /tmp/update.json)
+          RELEASE_TIME=$(jq -r '.releaseTime // empty' /tmp/update.json)
+
+          if [ -z "$VERSION" ]; then
+            echo "ERROR: version is missing."
+            exit 1
+          fi
+
+          if [ -z "$UPDATE_NAME" ]; then
+            echo "ERROR: updateName is missing."
+            exit 1
+          fi
+
+          if [ -z "$RELEASE_DATE" ] || [ -z "$RELEASE_TIME" ]; then
+            echo "ERROR: releaseDate or releaseTime is missing."
+            exit 1
+          fi
 
           echo "VERSION=$VERSION" >> "$GITHUB_ENV"
           echo "UPDATE_NAME=$UPDATE_NAME" >> "$GITHUB_ENV"
+          echo "RELEASE_DATE=$RELEASE_DATE" >> "$GITHUB_ENV"
+          echo "RELEASE_TIME=$RELEASE_TIME" >> "$GITHUB_ENV"
 
           echo "================================="
-          echo "Starting scheduled release..."
+          echo "Scheduled Release"
           echo "================================="
-          echo "Releasing version: $VERSION"
+          echo "Version: $VERSION"
           echo "Update: $UPDATE_NAME"
+          echo "Release date: $RELEASE_DATE"
+          echo "Release time: $RELEASE_TIME"
+          echo "================================="
+
+
+      # ==========================================================
+      # CHECK RELEASE TIME
+      # ==========================================================
+
+      - name: Check release time
+        run: |
+
+          RELEASE_TIMESTAMP=$(date -d \
+            "${RELEASE_DATE} ${RELEASE_TIME} +0800" \
+            +%s)
+
+          NOW_TIMESTAMP=$(date +%s)
+
+          echo "Release timestamp: $RELEASE_TIMESTAMP"
+          echo "Current timestamp: $NOW_TIMESTAMP"
+
+          if [ "$NOW_TIMESTAMP" -lt "$RELEASE_TIMESTAMP" ]; then
+            echo "Release time has not arrived yet."
+            echo "Skipping release."
+
+            echo "RELEASE_READY=false" >> "$GITHUB_ENV"
+
+            exit 0
+          fi
+
+          echo "Release time reached."
+          echo "RELEASE_READY=true" >> "$GITHUB_ENV"
+
+
+      # ==========================================================
+      # STOP IF NOT READY
+      # ==========================================================
+
+      - name: Stop if release is not ready
+        if: env.RELEASE_READY != 'true'
+        run: |
+          echo "No release yet."
+          exit 0
+
+
+      # ==========================================================
+      # APPLY UPDATE-1.4 TO MAIN
+      #
+      # IMPORTANT:
+      # update.json is intentionally NOT copied.
+      #
+      # It remains on update-1.4.
+      # ==========================================================
+
+      - name: Apply update branch to main
+        run: |
+
+          echo "Applying update-1.4 changes to main..."
+
+          git checkout origin/update-1.4 -- .
+
+          rm -f update.json
+
+          echo "Update branch files copied."
+
+
+      # ==========================================================
+      # UPDATE VERSION.JSON
+      # ==========================================================
 
       - name: Update version.json
         run: |
+
+          if [ ! -f version.json ]; then
+            echo "ERROR: version.json does not exist."
+            exit 1
+          fi
+
           jq \
             --arg version "$VERSION" \
             --arg updateName "$UPDATE_NAME" \
-            '.version = $version | .updateName = $updateName | .status = "released"' \
+            '
+              .version = $version |
+              .updateName = $updateName |
+              .status = "released"
+            ' \
             version.json > version.tmp.json
 
           mv version.tmp.json version.json
 
+
+      # ==========================================================
+      # MAKE SURE update.json DID NOT ENTER MAIN
+      # ==========================================================
+
+      - name: Verify release files
+        run: |
+
+          if [ -f update.json ]; then
+            echo "ERROR: update.json must not exist in main."
+            rm -f update.json
+          fi
+
+          echo "Release verification complete."
+
+
+      # ==========================================================
+      # COMMIT
+      # ==========================================================
+
       - name: Commit release
         run: |
-          git add version.json
+
+          git add -A
 
           if git diff --cached --quiet; then
-            echo "No version.json changes to commit."
-          else
-            git commit -m "Release version $VERSION"
+            echo "No changes to release."
+            exit 0
           fi
+
+          git commit \
+            -m "Release version $VERSION - $UPDATE_NAME"
+
+
+      # ==========================================================
+      # PUSH TO MAIN
+      # ==========================================================
 
       - name: Push release
         run: |
+
           git push origin main
+
+          echo "================================="
+          echo "RELEASE COMPLETE"
+          echo "================================="
+          echo "Version: $VERSION"
+          echo "Update: $UPDATE_NAME"
+          echo "================================="
