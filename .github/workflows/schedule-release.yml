@@ -3,7 +3,11 @@ name: Scheduled Release
 on:
   schedule:
     - cron: "*/5 * * * *"
+
   workflow_dispatch:
+
+  repository_dispatch:
+    types: [schedule-release]
 
 permissions:
   contents: write
@@ -13,14 +17,27 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      # =========================================================
+      # CHECKOUT MAIN
+      # =========================================================
+
       - name: Checkout main
         uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
+
+
+      # =========================================================
+      # CHECK RELEASE TIME
+      # =========================================================
 
       - name: Check release time
         id: release
+        shell: bash
         run: |
+
           git fetch origin update-1.4
 
           python - <<'PY'
@@ -29,50 +46,150 @@ jobs:
           from datetime import datetime, timezone
 
           raw = subprocess.check_output(
-              ["git", "show", "origin/update-1.4:update.json"],
+              [
+                  "git",
+                  "show",
+                  "origin/update-1.4:update.json"
+              ],
               text=True
           )
 
           data = json.loads(raw)
 
+          date = data["releaseDate"]
+          time = data["releaseTime"]
+
+          # Accept both:
+          # 8:45
+          # 08:45
+
+          hour, minute = map(int, time.split(":"))
+
           release_time = datetime.fromisoformat(
-              data["releaseDate"] + "T" +
-              data["releaseTime"] + ":00+08:00"
+              f"{date}T{hour:02d}:{minute:02d}:00+08:00"
           )
 
           now = datetime.now(timezone.utc)
 
-          print("Current UTC:", now)
-          print("Release time:", release_time)
-          print("Version:", data["version"])
+          print("=================================")
+          print("Scheduled Release Check")
+          print("=================================")
+          print("Current UTC:", now.isoformat())
+          print("Release PH:", release_time.isoformat())
+          print("Version:", data.get("version"))
+          print("Update:", data.get("updateName"))
+          print("=================================")
 
           if now >= release_time:
-              with open("/tmp/release-ready", "w") as f:
-                  f.write("yes")
+              ready = "yes"
               print("RELEASE READY")
           else:
-              with open("/tmp/release-ready", "w") as f:
-                  f.write("no")
+              ready = "no"
               print("NOT YET RELEASED")
+
+          with open(
+              "/tmp/release-ready",
+              "w"
+          ) as f:
+              f.write(ready)
+
           PY
 
           echo "ready=$(cat /tmp/release-ready)" >> "$GITHUB_OUTPUT"
 
-      - name: Merge update-1.4 into main
-        if: steps.release.outputs.ready == 'yes'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin
+      # =========================================================
+      # RELEASE UPDATE-1.4 TO MAIN
+      #
+      # IMPORTANT:
+      #
+      # Everything from update-1.4 is copied to main
+      # EXCEPT:
+      #
+      # update.json
+      #
+      # update.json stays only on update-1.4.
+      # =========================================================
+
+      - name: Release update-1.4 to main
+        if: steps.release.outputs.ready == 'yes'
+        shell: bash
+        run: |
+
+          set -e
+
+          git config user.name "github-actions[bot]"
+          git config user.email \
+            "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git fetch origin main update-1.4
+
+          echo "================================="
+          echo "Preparing release..."
+          echo "================================="
+
+          # Make sure we are on main.
 
           git checkout main
-          git merge origin/update-1.4 --no-edit
 
-          git push origin main
+          # Reset working tree before copying files.
+
+          git reset --hard origin/main
+
+          # Copy the complete update-1.4 tree.
+          #
+          # update.json is intentionally excluded.
+
+          git archive origin/update-1.4 \
+            | tar -x \
+                --exclude=update.json
+
+          # Remove update.json if it somehow exists
+          # in the extracted tree.
+
+          rm -f update.json
+
+          echo "================================="
+          echo "Files prepared for main:"
+          echo "================================="
+
+          git status --short
+
+          # Stage all changes.
+
+          git add -A
+
+          # Nothing changed = no commit required.
+
+          if git diff --cached --quiet; then
+
+            echo "No files changed."
+            echo "Release already applied."
+
+          else
+
+            git commit \
+              -m "Release scheduled update"
+
+            git push origin main
+
+            echo "================================="
+            echo "RELEASE SUCCESSFUL"
+            echo "================================="
+
+          fi
+
+
+      # =========================================================
+      # NOT READY
+      # =========================================================
 
       - name: Wait for scheduled release
         if: steps.release.outputs.ready == 'no'
         run: |
+
+          echo "================================="
           echo "Update is not ready yet."
-          echo "Next scheduled check will try again."
+          echo "================================="
+          echo "The workflow will check again."
+          echo "Schedule: every 5 minutes."
