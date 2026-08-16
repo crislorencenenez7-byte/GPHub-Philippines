@@ -2,10 +2,8 @@ name: Scheduled Release
 
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    - cron: "*/10 * * * *"
   workflow_dispatch:
-  repository_dispatch:
-    types: [scheduled-release]
 
 permissions:
   contents: write
@@ -18,147 +16,63 @@ jobs:
       - name: Checkout main
         uses: actions/checkout@v4
         with:
-          ref: main
           fetch-depth: 0
-
-      - name: Configure Git
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-      - name: Read scheduled update
-        id: update
-        run: |
-          git fetch origin update-1.4
-
-          git show origin/update-1.4:update.json > /tmp/update.json
-
-          VERSION=$(jq -r '.version' /tmp/update.json)
-          UPDATE_NAME=$(jq -r '.updateName' /tmp/update.json)
-          RELEASE_DATE=$(jq -r '.releaseDate' /tmp/update.json)
-          RELEASE_TIME=$(jq -r '.releaseTime' /tmp/update.json)
-
-          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
-          echo "UPDATE_NAME=$UPDATE_NAME" >> "$GITHUB_ENV"
-          echo "RELEASE_DATE=$RELEASE_DATE" >> "$GITHUB_ENV"
-          echo "RELEASE_TIME=$RELEASE_TIME" >> "$GITHUB_ENV"
-
-          echo "================================="
-          echo "Scheduled Release"
-          echo "================================="
-          echo "Version: $VERSION"
-          echo "Update: $UPDATE_NAME"
-          echo "Release: $RELEASE_DATE $RELEASE_TIME PH"
 
       - name: Check release time
         id: release
         run: |
+          git fetch origin update-1.4
+
           python - <<'PY'
-          import os
+          import json
+          import subprocess
           from datetime import datetime, timezone
 
-          release_date = os.environ["RELEASE_DATE"].strip()
-          release_time = os.environ["RELEASE_TIME"].strip()
-
-          # Accept both:
-          # 8:45
-          # 08:45
-          # 9:05
-          # 09:05
-          time_parts = release_time.split(":")
-
-          if len(time_parts) != 2:
-              raise ValueError(
-                  f"Invalid releaseTime: {release_time}"
-              )
-
-          hour = int(time_parts[0])
-          minute = int(time_parts[1])
-
-          if not 0 <= hour <= 23:
-              raise ValueError(
-                  f"Invalid hour: {hour}"
-              )
-
-          if not 0 <= minute <= 59:
-              raise ValueError(
-                  f"Invalid minute: {minute}"
-              )
-
-          normalized_time = f"{hour:02d}:{minute:02d}:00"
-
-          release_string = (
-              f"{release_date}T"
-              f"{normalized_time}"
-              f"+08:00"
+          raw = subprocess.check_output(
+              ["git", "show", "origin/update-1.4:update.json"],
+              text=True
           )
 
-          release_time_dt = datetime.fromisoformat(
-              release_string
+          data = json.loads(raw)
+
+          release_time = datetime.fromisoformat(
+              data["releaseDate"] + "T" +
+              data["releaseTime"] + ":00+08:00"
           )
 
           now = datetime.now(timezone.utc)
 
           print("Current UTC:", now)
-          print("Release time PH:", release_time_dt)
-          print("Version:", os.environ["VERSION"])
+          print("Release time:", release_time)
+          print("Version:", data["version"])
 
-          if now >= release_time_dt:
-              print("RELEASE READY")
-
+          if now >= release_time:
               with open("/tmp/release-ready", "w") as f:
                   f.write("yes")
-
+              print("RELEASE READY")
           else:
-              print("NOT YET RELEASED")
-
               with open("/tmp/release-ready", "w") as f:
                   f.write("no")
+              print("NOT YET RELEASED")
           PY
 
           echo "ready=$(cat /tmp/release-ready)" >> "$GITHUB_OUTPUT"
 
-      - name: Release update-1.4 to main
+      - name: Merge update-1.4 into main
         if: steps.release.outputs.ready == 'yes'
         run: |
-          echo "================================="
-          echo "Releasing version $VERSION"
-          echo "================================="
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git fetch origin main update-1.4
+          git fetch origin
 
-          # Start from the latest main.
           git checkout main
-          git reset --hard origin/main
+          git merge origin/update-1.4 --no-edit
 
-          # Copy all changes from update-1.4.
-          git checkout origin/update-1.4 -- .
-
-          # update.json belongs only to the staging branch.
-          git rm -f --ignore-unmatch update.json
-
-          # Update version.json on main.
-          jq \
-            --arg version "$VERSION" \
-            --arg updateName "$UPDATE_NAME" \
-            '.version = $version
-             | .updateName = $updateName
-             | .status = "released"' \
-            version.json > version.tmp.json
-
-          mv version.tmp.json version.json
-
-          git add -A
-
-          if git diff --cached --quiet; then
-            echo "No changes to release."
-          else
-            git commit -m "Release version $VERSION"
-            git push origin main
-          fi
+          git push origin main
 
       - name: Wait for scheduled release
         if: steps.release.outputs.ready == 'no'
         run: |
           echo "Update is not ready yet."
-          echo "Next check will run within 5 minutes."
+          echo "Next scheduled check will try again."
