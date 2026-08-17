@@ -8,6 +8,7 @@ on:
 
   repository_dispatch:
     types: [schedule-release]
+
 permissions:
   contents: write
 
@@ -17,19 +18,27 @@ jobs:
 
     steps:
 
+      # =========================================================
+      # CHECKOUT MAIN
+      # =========================================================
+
       - name: Checkout main
         uses: actions/checkout@v4
         with:
           ref: main
           fetch-depth: 0
 
+
+      # =========================================================
+      # CHECK RELEASE TIME
+      # =========================================================
+
       - name: Check release time
         id: release
         shell: bash
         run: |
-          set -e
 
-          git fetch origin main update-1.4
+          git fetch origin update-1.4
 
           python - <<'PY'
           import json
@@ -37,94 +46,66 @@ jobs:
           from datetime import datetime, timezone
 
           raw = subprocess.check_output(
-              ["git", "show", "origin/update-1.4:update.json"],
+              [
+                  "git",
+                  "show",
+                  "origin/update-1.4:update.json"
+              ],
               text=True
           )
 
           data = json.loads(raw)
 
-          release_date = data["releaseDate"]
-          release_time = data["releaseTime"]
+          date = data["releaseDate"]
+          time = data["releaseTime"]
 
-          hour, minute = map(int, release_time.split(":"))
+          # Accept both:
+          # 8:45
+          # 08:45
 
-          release_dt = datetime.fromisoformat(
-              f"{release_date}T{hour:02d}:{minute:02d}:00+08:00"
+          hour, minute = map(int, time.split(":"))
+
+          release_time = datetime.fromisoformat(
+              f"{date}T{hour:02d}:{minute:02d}:00+08:00"
           )
 
           now = datetime.now(timezone.utc)
 
           print("=================================")
-          print("SCHEDULED RELEASE CHECK")
+          print("Scheduled Release Check")
           print("=================================")
-          print("Current UTC :", now.isoformat())
-          print("Release PH  :", release_dt.isoformat())
-          print("Version     :", data.get("version", ""))
-          print("Update      :", data.get("updateName", ""))
+          print("Current UTC:", now.isoformat())
+          print("Release PH:", release_time.isoformat())
+          print("Version:", data.get("version"))
+          print("Update:", data.get("updateName"))
           print("=================================")
 
-          ready = now >= release_dt
-
-          print(
-              "RELEASE READY"
-              if ready
-              else "NOT YET RELEASED"
-          )
+          if now >= release_time:
+              ready = "yes"
+              print("RELEASE READY")
+          else:
+              ready = "no"
+              print("NOT YET RELEASED")
 
           with open(
               "/tmp/release-ready",
               "w"
           ) as f:
-              f.write("yes" if ready else "no")
+              f.write(ready)
+
           PY
 
           echo "ready=$(cat /tmp/release-ready)" >> "$GITHUB_OUTPUT"
 
-      - name: Release update-1.4 to main
-        if: steps.release.outputs.ready == 'yes'
-        shell: bash
-        run: |
-          set -e
 
-          git config user.name "github-actions[bot]"
-          git config user.email \
-            "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git fetch origin main update-1.4
-
-          git checkout main
-          git reset --hard origin/main
-
-          echo "Copying update-1.4 into main..."
-
-          git archive origin/update-1.4 \
-            | tar -x
-
-          # update.json is only the scheduler's control file.
-          # Do NOT keep it in main.
-          rm -f update.json
-
-          echo "================================="
-          echo "CHANGES TO BE RELEASED"
-          echo "================================="
-
-          git status --short
-
-          git add -A
-
-          if git diff --cached --quiet; then
-            echo "No new changes to release."
-          else
-            git commit -m "Release scheduled update"
-            git push origin main
-            echo "RELEASE SUCCESSFUL"
-          fi
-
-      - name: Wait for scheduled release
-        if: steps.release.outputs.ready == 'no'
-        run: |
-          echo "Update is not ready yet."
-          echo "The next scheduled run will check again."      #
+      # =========================================================
+      # RELEASE UPDATE-1.4 TO MAIN
+      #
+      # IMPORTANT:
+      #
+      # Everything from update-1.4 is copied to main
+      # EXCEPT:
+      #
       # update.json
       #
       # update.json stays only on update-1.4.
