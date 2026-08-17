@@ -1,33 +1,21 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">  <title>Golden Pride Hub | Golden Pride Philippines</title><meta
+name="description"
+content="Official community hub of Golden Pride Philippines — announcements, events, gallery, and achievements."
 
-  <title>Golden Pride Hub | Golden Pride Philippines</title>
-
-  <meta
-    name="description"
-    content="Official community hub of Golden Pride Philippines — announcements, events, gallery, and achievements."
-  >
+«»
 
   <link rel="icon" href="assets/logo.png">
-  <link rel="manifest" href="manifest.json">
-
-  <meta name="theme-color" content="#ffd700">
-
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/responsive.css">
-
-  <link
+  <link rel="manifest" href="manifest.json">  <meta name="theme-color" content="#ffd700">  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/responsive.css">  <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   >
-</head>
-
-<body class="landing-page">
-
-  <div class="gold-bubbles" aria-hidden="true">
+</head><body class="landing-page">  <!-- ============================================================
+       GOLD AMBIENT BUBBLES
+       ============================================================ -->  <div class="gold-bubbles" aria-hidden="true">
     <span class="bubble bubble-1"></span>
     <span class="bubble bubble-2"></span>
     <span class="bubble bubble-3"></span>
@@ -36,51 +24,29 @@
     <span class="bubble bubble-6"></span>
     <span class="bubble bubble-7"></span>
     <span class="bubble bubble-8"></span>
-  </div>
+  </div>  <!-- ============================================================
+       PAGE CONTENT
+       ============================================================ -->  <div class="page-content"><!-- RELEASE BANNER -->
 
-<!-- ============================================================
-     RELEASE BANNER
-     SOURCE: version.json
-     ============================================================ -->
-
-<div
-  id="release-banner"
-  style="
-    text-align:center;
-    padding:12px 16px;
-    background:linear-gradient(90deg,#ffd700,#ffe66d,#ffd700);
-    color:#0d0d0d;
-    font-weight:700;
-    box-shadow:0 4px 20px rgba(255,215,0,.18);
-    position:relative;
-    z-index:1000;
-  "
->
+<div id="release-banner">
   <span id="release-banner-text">
     Loading latest release...
   </span>
 </div>
 
 
-<!-- ============================================================
-     LOADING SCREEN
-     ============================================================ -->
+<!-- LOADING SCREEN -->
 
 <div id="loading-screen">
   <div class="spinner"></div>
 </div>
 
 
-<!-- ============================================================
-     NAVBAR
-     ============================================================ -->
+<!-- NAVBAR -->
 
 <nav class="navbar">
 
-  <a
-    href="index.html"
-    class="navbar-logo"
-  >
+  <a href="index.html" class="navbar-logo">
 
     <img
       src="assets/logo.png"
@@ -110,10 +76,7 @@
   <ul class="nav-menu">
 
     <li>
-      <a
-        href="index.html"
-        class="active"
-      >
+      <a href="index.html" class="active">
         Home
       </a>
     </li>
@@ -138,17 +101,11 @@
 
     <li class="nav-actions">
 
-      <a
-        href="login.html"
-        class="btn btn-outline"
-      >
+      <a href="login.html" class="btn btn-outline">
         Login
       </a>
 
-      <a
-        href="register.html"
-        class="btn btn-primary"
-      >
+      <a href="register.html" class="btn btn-primary">
         Register
       </a>
 
@@ -159,9 +116,7 @@
 </nav>
 
 
-<!-- ============================================================
-     HERO
-     ============================================================ -->
+<!-- HERO -->
 
 <header class="hero">
 
@@ -209,9 +164,7 @@
 </header>
 
 
-<!-- ============================================================
-     ABOUT
-     ============================================================ -->
+<!-- ABOUT -->
 
 <section
   class="about-section container"
@@ -256,19 +209,11 @@
     <div class="glass card fade-in">
 
       <h3>
-
         <i class="fa-solid fa-star text-gold"></i>
-
         Our Values
-
       </h3>
 
-      <p
-        style="
-          margin-top:12px;
-          color:var(--color-gray);
-        "
-      >
+      <p class="card-description">
 
         Excellence, unity, and pride guide everything
         we do as a community — from local events to
@@ -283,16 +228,11 @@
 </section>
 
 
-<!-- ============================================================
-     SCHEDULED UPDATE
-     SOURCE:
-     update-1.4/update.json
-     ============================================================ -->
+<!-- SCHEDULED UPDATE -->
 
 <section
-  class="container"
+  class="container update-section"
   id="scheduled-update"
-  style="padding-bottom:80px;"
 >
 
   <p class="hero-eyebrow">
@@ -311,26 +251,11 @@
   </p>
 
 
-  <div
-    class="glass card"
-    style="
-      text-align:center;
-      padding:30px;
-    "
-  >
+  <div class="glass card update-card">
 
-    <p
-      style="
-        color:var(--color-gold);
-        font-size:.8rem;
-        font-weight:700;
-        letter-spacing:3px;
-        margin-bottom:10px;
-      "
-    >
+    <p class="next-release-label">
       NEXT RELEASE
     </p>
-
 
     <h3
       id="update-version"
@@ -339,13 +264,9 @@
       UPDATE
     </h3>
 
-
     <p
       id="update-name"
-      style="
-        margin:10px auto 24px;
-        color:var(--color-gray-light);
-      "
+      class="update-name"
     >
       Loading...
     </p>
@@ -355,119 +276,48 @@
 
     <div
       id="update-countdown"
-      style="
-        display:grid;
-        grid-template-columns:
-          repeat(4,1fr);
-        gap:12px;
-        max-width:700px;
-        margin:0 auto 24px;
-      "
+      class="countdown-grid"
     >
 
-      <div
-        class="glass"
-        style="padding:18px 10px;"
-      >
-        <strong
-          id="count-days"
-          style="
-            display:block;
-            color:var(--color-gold);
-            font-size:2rem;
-            font-weight:800;
-          "
-        >
+      <div class="glass countdown-box">
+        <strong id="count-days">
           00
         </strong>
 
-        <span
-          style="
-            color:var(--color-gray);
-            font-size:.75rem;
-          "
-        >
+        <span>
           Days
         </span>
       </div>
 
 
-      <div
-        class="glass"
-        style="padding:18px 10px;"
-      >
-        <strong
-          id="count-hours"
-          style="
-            display:block;
-            color:var(--color-gold);
-            font-size:2rem;
-            font-weight:800;
-          "
-        >
+      <div class="glass countdown-box">
+        <strong id="count-hours">
           00
         </strong>
 
-        <span
-          style="
-            color:var(--color-gray);
-            font-size:.75rem;
-          "
-        >
+        <span>
           Hours
         </span>
       </div>
 
 
-      <div
-        class="glass"
-        style="padding:18px 10px;"
-      >
-        <strong
-          id="count-minutes"
-          style="
-            display:block;
-            color:var(--color-gold);
-            font-size:2rem;
-            font-weight:800;
-          "
-        >
+      <div class="glass countdown-box">
+        <strong id="count-minutes">
           00
         </strong>
 
-        <span
-          style="
-            color:var(--color-gray);
-            font-size:.75rem;
-          "
-        >
+        <span>
           Minutes
         </span>
       </div>
 
 
-      <div
-        class="glass"
-        style="padding:18px 10px;"
-      >
-        <strong
-          id="count-seconds"
-          style="
-            display:block;
-            color:var(--color-gold);
-            font-size:2rem;
-            font-weight:800;
-          "
-        >
+      <div class="glass countdown-box">
+        <strong id="count-seconds">
           00
         </strong>
 
-        <span
-          style="
-            color:var(--color-gray);
-            font-size:.75rem;
-          "
-        >
+        <span>
           Seconds
         </span>
       </div>
@@ -477,10 +327,7 @@
 
     <p
       id="update-status"
-      style="
-        color:var(--color-gray);
-        font-size:.85rem;
-      "
+      class="update-status"
     >
       Loading release schedule...
     </p>
@@ -490,14 +337,11 @@
 </section>
 
 
-<!-- ============================================================
-     ANNOUNCEMENTS
-     ============================================================ -->
+<!-- ANNOUNCEMENTS -->
 
 <section
-  class="container"
+  class="container announcements-section"
   id="announcements"
-  style="padding-bottom:80px;"
 >
 
   <p class="hero-eyebrow">
@@ -520,9 +364,7 @@
 </section>
 
 
-<!-- ============================================================
-     FOOTER
-     ============================================================ -->
+<!-- FOOTER -->
 
 <footer class="site-footer">
 
@@ -540,9 +382,7 @@
 </footer>
 
 
-<!-- ============================================================
-     SCROLL TOP
-     ============================================================ -->
+<!-- SCROLL TOP -->
 
 <button
   id="scroll-top"
@@ -552,509 +392,406 @@
   <i class="fa-solid fa-arrow-up"></i>
 </button>
 
+  </div>  <!-- ============================================================
+       FIREBASE
+       ============================================================ -->  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>  <script src="js/firebase-config.js"></script>  <script src="js/app.js"></script>  <script src="js/dashboard.js"></script>  <!-- ============================================================
+       PAGE + RELEASE + COUNTDOWN
+       ============================================================ -->  <script>
 
-<!-- ============================================================
-     FIREBASE
-     ============================================================ -->
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
-
-<script src="js/firebase-config.js"></script>
-
-<script src="js/app.js"></script>
-
-<script src="js/dashboard.js"></script>
+    document.getElementById("year").textContent =
+      new Date().getFullYear();
 
 
-<!-- ============================================================
-     PAGE + RELEASE + COUNTDOWN
-     ============================================================ -->
+    /* ============================================================
+       VERSION BANNER
+       SOURCE: version.json
+       ============================================================ */
 
-<script>
+    async function loadReleaseBanner() {
 
-document.getElementById("year").textContent =
-  new Date().getFullYear();
+      const banner =
+        document.getElementById(
+          "release-banner-text"
+        );
 
+      try {
 
-/* ============================================================
-   VERSION BANNER
-   SOURCE: version.json
-   ============================================================ */
+        const response =
+          await fetch(
+            "version.json?ts=" +
+            Date.now(),
+            {
+              cache: "no-store"
+            }
+          );
 
-async function loadReleaseBanner() {
-
-  const banner =
-    document.getElementById(
-      "release-banner-text"
-    );
-
-  try {
-
-    const response =
-      await fetch(
-        "version.json?ts=" +
-        Date.now(),
-        {
-          cache:"no-store"
+        if (!response.ok) {
+          throw new Error(
+            "version.json HTTP " +
+            response.status
+          );
         }
-      );
 
-    if (!response.ok) {
+        const data =
+          await response.json();
 
-      throw new Error(
-        "version.json HTTP " +
-        response.status
-      );
+        const version =
+          data.version
+            ? `Version ${data.version}`
+            : "";
 
-    }
+        const updateName =
+          data.updateName ||
+          "Golden Pride Hub";
 
-    const data =
-      await response.json();
+        banner.textContent =
+          version
+            ? `${updateName} • ${version}`
+            : updateName;
 
-    const version =
-      data.version
-        ? `Version ${data.version}`
-        : "";
-
-    const updateName =
-      data.updateName ||
-      "Golden Pride Hub";
-
-    banner.textContent =
-      version
-        ? `${updateName} • ${version}`
-        : updateName;
-
-  }
-
-  catch(error) {
-
-    console.error(
-      "Version banner error:",
-      error
-    );
-
-    banner.textContent =
-      "Golden Pride Hub";
-
-  }
-
-}
-
-
-/* ============================================================
-   SCHEDULED UPDATE
-   SOURCE:
-   update-1.4/update.json
-
-   IMPORTANT:
-   DO NOT MOVE update.json TO main.
-
-   The file remains in:
-   update-1.4/update.json
-   ============================================================ */
-
-async function loadScheduledUpdate() {
-
-  const updateName =
-    document.getElementById(
-      "update-name"
-    );
-
-  const updateVersion =
-    document.getElementById(
-      "update-version"
-    );
-
-  const description =
-    document.getElementById(
-      "update-description"
-    );
-
-  const status =
-    document.getElementById(
-      "update-status"
-    );
-
-  const days =
-    document.getElementById(
-      "count-days"
-    );
-
-  const hours =
-    document.getElementById(
-      "count-hours"
-    );
-
-  const minutes =
-    document.getElementById(
-      "count-minutes"
-    );
-
-  const seconds =
-    document.getElementById(
-      "count-seconds"
-    );
-
-
-  /*
-    GitHub raw source.
-
-    Branch:
-    update-1.4
-
-    File:
-    update.json
-  */
-
-  const UPDATE_URL =
-    "https://raw.githubusercontent.com/" +
-    "crislorencenenez7-byte/" +
-    "GPHub-Philippines/" +
-    "update-1.4/update.json?ts=" +
-    Date.now();
-
-
-  try {
-
-    const response =
-      await fetch(
-        UPDATE_URL,
-        {
-          cache:"no-store"
-        }
-      );
-
-
-    if (!response.ok) {
-
-      throw new Error(
-        "update.json HTTP " +
-        response.status
-      );
-
-    }
-
-
-    const data =
-      await response.json();
-
-
-    console.log(
-      "Loaded update-1.4/update.json:",
-      data
-    );
-
-
-    /*
-      Expected JSON:
-
-      {
-        "version": "3.5",
-        "updateName":
-          "3.5 release, New Features come, and fix errors",
-        "releaseDate": "2026-08-15",
-        "releaseTime": "12:30",
-        "status": "scheduled"
       }
-    */
+
+      catch (error) {
+
+        console.error(
+          "Version banner error:",
+          error
+        );
+
+        banner.textContent =
+          "Golden Pride Hub";
+
+      }
+
+    }
 
 
-    const version =
-      data.version || "";
+    /* ============================================================
+       SCHEDULED UPDATE
+       SOURCE:
+       update-1.4/update.json
+       ============================================================ */
+
+    async function loadScheduledUpdate() {
+
+      const updateName =
+        document.getElementById(
+          "update-name"
+        );
+
+      const updateVersion =
+        document.getElementById(
+          "update-version"
+        );
+
+      const description =
+        document.getElementById(
+          "update-description"
+        );
+
+      const status =
+        document.getElementById(
+          "update-status"
+        );
+
+      const days =
+        document.getElementById(
+          "count-days"
+        );
+
+      const hours =
+        document.getElementById(
+          "count-hours"
+        );
+
+      const minutes =
+        document.getElementById(
+          "count-minutes"
+        );
+
+      const seconds =
+        document.getElementById(
+          "count-seconds"
+        );
 
 
-    const message =
-      data.updateName ||
-      "Scheduled Update";
+      const UPDATE_URL =
+        "https://raw.githubusercontent.com/" +
+        "crislorencenenez7-byte/" +
+        "GPHub-Philippines/" +
+        "update-1.4/update.json?ts=" +
+        Date.now();
 
 
-    if (version) {
+      try {
 
-      updateVersion.textContent =
-        `UPDATE ${version}`;
+        const response =
+          await fetch(
+            UPDATE_URL,
+            {
+              cache: "no-store"
+            }
+          );
 
-      description.textContent =
-        `Version ${version}`;
+
+        if (!response.ok) {
+
+          throw new Error(
+            "update.json HTTP " +
+            response.status
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        console.log(
+          "Loaded update-1.4/update.json:",
+          data
+        );
+
+
+        const version =
+          data.version || "";
+
+
+        const message =
+          data.updateName ||
+          "Scheduled Update";
+
+
+        if (version) {
+
+          updateVersion.textContent =
+            `UPDATE ${version}`;
+
+          description.textContent =
+            `Version ${version}`;
+
+        }
+
+        else {
+
+          updateVersion.textContent =
+            "UPDATE";
+
+        }
+
+
+        updateName.textContent =
+          message;
+
+
+        if (
+          !data.releaseDate ||
+          !data.releaseTime
+        ) {
+
+          throw new Error(
+            "releaseDate or releaseTime missing"
+          );
+
+        }
+
+
+        const releaseString =
+          `${data.releaseDate}T` +
+          `${data.releaseTime}:00+08:00`;
+
+
+        const releaseTime =
+          new Date(
+            releaseString
+          ).getTime();
+
+
+        if (
+          Number.isNaN(
+            releaseTime
+          )
+        ) {
+
+          throw new Error(
+            "Invalid release date/time"
+          );
+
+        }
+
+
+        function updateCountdown() {
+
+          const now =
+            Date.now();
+
+          const difference =
+            releaseTime -
+            now;
+
+
+          if (
+            difference <= 0
+          ) {
+
+            days.textContent = "00";
+            hours.textContent = "00";
+            minutes.textContent = "00";
+            seconds.textContent = "00";
+
+            status.textContent =
+              `${message} • UPDATE IS NOW LIVE!`;
+
+            return;
+
+          }
+
+
+          const totalSeconds =
+            Math.floor(
+              difference / 1000
+            );
+
+
+          const d =
+            Math.floor(
+              totalSeconds / 86400
+            );
+
+
+          const h =
+            Math.floor(
+              (
+                totalSeconds % 86400
+              ) / 3600
+            );
+
+
+          const m =
+            Math.floor(
+              (
+                totalSeconds % 3600
+              ) / 60
+            );
+
+
+          const s =
+            totalSeconds % 60;
+
+
+          days.textContent =
+            String(d).padStart(2, "0");
+
+          hours.textContent =
+            String(h).padStart(2, "0");
+
+          minutes.textContent =
+            String(m).padStart(2, "0");
+
+          seconds.textContent =
+            String(s).padStart(2, "0");
+
+
+          status.textContent =
+            `Releasing ${data.releaseDate} ` +
+            `at ${data.releaseTime} PH`;
+
+        }
+
+
+        updateCountdown();
+
+        setInterval(
+          updateCountdown,
+          1000
+        );
+
+      }
+
+      catch (error) {
+
+        console.error(
+          "Scheduled update error:",
+          error
+        );
+
+
+        updateVersion.textContent =
+          "UPDATE";
+
+        updateName.textContent =
+          "Update schedule unavailable";
+
+        description.textContent =
+          "Unable to load scheduled update.";
+
+        days.textContent = "--";
+        hours.textContent = "--";
+        minutes.textContent = "--";
+        seconds.textContent = "--";
+
+        status.textContent =
+          "Could not read update-1.4/update.json.";
+
+      }
+
+    }
+
+
+    /* ============================================================
+       ANNOUNCEMENT PREVIEW
+       ============================================================ */
+
+    function initPreview() {
+
+      if (
+        typeof loadRecentAnnouncementPreview ===
+          "function" &&
+        typeof db !== "undefined"
+      ) {
+
+        loadRecentAnnouncementPreview();
+
+      }
+
+      else {
+
+        setTimeout(
+          initPreview,
+          300
+        );
+
+      }
+
+    }
+
+
+    /* ============================================================
+       START
+       ============================================================ */
+
+    loadReleaseBanner();
+    loadScheduledUpdate();
+
+
+    if (
+      document.readyState ===
+      "loading"
+    ) {
+
+      document.addEventListener(
+        "DOMContentLoaded",
+        initPreview
+      );
 
     }
 
     else {
 
-      updateVersion.textContent =
-        "UPDATE";
+      initPreview();
 
     }
 
-
-    updateName.textContent =
-      message;
-
-
-    if (
-      !data.releaseDate ||
-      !data.releaseTime
-    ) {
-
-      throw new Error(
-        "releaseDate or releaseTime missing"
-      );
-
-    }
-
-
-    /*
-      Philippine Time = UTC+8
-
-      Example:
-
-      2026-08-15
-      12:30
-
-      becomes:
-
-      2026-08-15T12:30:00+08:00
-    */
-
-    const releaseString =
-      `${data.releaseDate}T` +
-      `${data.releaseTime}:00+08:00`;
-
-
-    const releaseTime =
-      new Date(
-        releaseString
-      ).getTime();
-
-
-    if (
-      Number.isNaN(
-        releaseTime
-      )
-    ) {
-
-      throw new Error(
-        "Invalid release date/time"
-      );
-
-    }
-
-
-    function updateCountdown() {
-
-      const now =
-        Date.now();
-
-
-      const difference =
-        releaseTime -
-        now;
-
-
-      /*
-        RELEASED
-      */
-
-      if (
-        difference <= 0
-      ) {
-
-        days.textContent =
-          "00";
-
-        hours.textContent =
-          "00";
-
-        minutes.textContent =
-          "00";
-
-        seconds.textContent =
-          "00";
-
-
-        status.textContent =
-          `${message} • UPDATE IS NOW LIVE!`;
-
-        return;
-
-      }
-
-
-      /*
-        COUNTDOWN
-      */
-
-      const totalSeconds =
-        Math.floor(
-          difference / 1000
-        );
-
-
-      const d =
-        Math.floor(
-          totalSeconds / 86400
-        );
-
-
-      const h =
-        Math.floor(
-          (
-            totalSeconds % 86400
-          ) / 3600
-        );
-
-
-      const m =
-        Math.floor(
-          (
-            totalSeconds % 3600
-          ) / 60
-        );
-
-
-      const s =
-        totalSeconds % 60;
-
-
-      days.textContent =
-        String(d)
-          .padStart(2,"0");
-
-
-      hours.textContent =
-        String(h)
-          .padStart(2,"0");
-
-
-      minutes.textContent =
-        String(m)
-          .padStart(2,"0");
-
-
-      seconds.textContent =
-        String(s)
-          .padStart(2,"0");
-
-
-      status.textContent =
-        `Releasing ${data.releaseDate} ` +
-        `at ${data.releaseTime} PH`;
-
-    }
-
-
-    updateCountdown();
-
-
-    setInterval(
-      updateCountdown,
-      1000
-    );
-
-  }
-
-  catch(error) {
-
-    console.error(
-      "Scheduled update error:",
-      error
-    );
-
-
-    updateVersion.textContent =
-      "UPDATE";
-
-
-    updateName.textContent =
-      "Update schedule unavailable";
-
-
-    description.textContent =
-      "Unable to load scheduled update.";
-
-
-    days.textContent =
-      "--";
-
-    hours.textContent =
-      "--";
-
-    minutes.textContent =
-      "--";
-
-    seconds.textContent =
-      "--";
-
-
-    status.textContent =
-      "Could not read update-1.4/update.json.";
-
-  }
-
-}
-
-
-/* ============================================================
-   ANNOUNCEMENT PREVIEW
-   Firebase failure is independent from countdown.
-   ============================================================ */
-
-function initPreview() {
-
-  if (
-    typeof loadRecentAnnouncementPreview ===
-      "function" &&
-    typeof db !== "undefined"
-  ) {
-
-    loadRecentAnnouncementPreview();
-
-  }
-
-  else {
-
-    setTimeout(
-      initPreview,
-      300
-    );
-
-  }
-
-}
-
-
-/* ============================================================
-   START
-   ============================================================ */
-
-loadReleaseBanner();
-
-loadScheduledUpdate();
-
-
-if (
-  document.readyState ===
-  "loading"
-) {
-
-  document.addEventListener(
-    "DOMContentLoaded",
-    initPreview
-  );
-
-}
-
-else {
-
-  initPreview();
-
-}
-
-</script>
-
-</body>
+  </script></body>
 </html>
