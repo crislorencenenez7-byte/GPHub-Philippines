@@ -820,11 +820,7 @@ input, textarea, select {
 
 
 /* ============================================================
-   PREMIUM GOLD AMBIENT LAYER — INDEX ONLY
-   Visual-only enhancement. No JS/data behavior changed.
-   ============================================================ */
-/* ============================================================
-   PREMIUM GOLD AMBIENT LAYER — INDEX ONLY
+   PREMIUM GOLD BUBBLES — LANDING PAGE
    ============================================================ */
 
 .landing-page {
@@ -832,6 +828,7 @@ input, textarea, select {
   isolation: isolate;
 }
 
+/* Ambient gold glow */
 .landing-page::before {
   content: "";
   position: fixed;
@@ -842,51 +839,67 @@ input, textarea, select {
   background:
     radial-gradient(
       circle at 50% 25%,
-      rgba(255,215,0,.055),
+      rgba(255, 215, 0, 0.055),
       transparent 28%
     ),
     radial-gradient(
       circle at 15% 75%,
-      rgba(255,215,0,.035),
+      rgba(255, 215, 0, 0.035),
       transparent 25%
     ),
     radial-gradient(
       circle at 90% 45%,
-      rgba(255,215,0,.03),
+      rgba(255, 215, 0, 0.03),
       transparent 22%
     );
 }
 
-.gold-bubbles {
+/* ============================================================
+   BUBBLE CONTAINER
+   ============================================================ */
+
+.landing-page .gold-bubbles {
   position: fixed;
   inset: 0;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
   pointer-events: none;
+
+  /* Visible above page background */
   z-index: 1;
 }
 
-.gold-bubbles .bubble {
+/* ============================================================
+   INDIVIDUAL BUBBLES
+   ============================================================ */
+
+.landing-page .gold-bubbles .bubble {
   position: absolute;
   display: block;
+
   width: var(--bubble-size, 18px);
   height: var(--bubble-size, 18px);
+
   border-radius: 50%;
-  opacity: .42;
+
+  opacity: 0;
 
   background:
     radial-gradient(
       circle at 30% 28%,
-      rgba(255,255,255,.9) 0 7%,
-      rgba(255,230,109,.85) 18%,
-      rgba(255,215,0,.5) 48%,
-      rgba(255,215,0,0) 72%
+      rgba(255, 255, 255, 0.95) 0 7%,
+      rgba(255, 230, 109, 0.9) 18%,
+      rgba(255, 215, 0, 0.55) 48%,
+      rgba(255, 215, 0, 0) 72%
     );
 
   box-shadow:
-    0 0 14px rgba(255,215,0,.24),
-    inset 0 0 7px rgba(255,255,255,.2);
+    0 0 14px rgba(255, 215, 0, 0.28),
+    0 0 30px rgba(255, 215, 0, 0.10),
+    inset 0 0 7px rgba(255, 255, 255, 0.25);
 
-  filter: blur(.15px);
+  filter: blur(0.15px);
 
   animation:
     goldBubbleFloat
@@ -895,8 +908,116 @@ input, textarea, select {
     infinite;
 }
 
+/* Bubble highlight */
+.landing-page .gold-bubbles .bubble::after {
+  content: "";
+  position: absolute;
+  inset: 22%;
+
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
 /* ============================================================
-   LANDING PAGE CONTENT — ALWAYS ABOVE BUBBLES
+   BUBBLE POSITIONS
+   ============================================================ */
+
+.landing-page .bubble-1 {
+  left: 7%;
+  top: 82%;
+  --bubble-size: 13px;
+  --bubble-speed: 14s;
+  animation-delay: -2s;
+}
+
+.landing-page .bubble-2 {
+  left: 18%;
+  top: 63%;
+  --bubble-size: 25px;
+  --bubble-speed: 18s;
+  animation-delay: -9s;
+}
+
+.landing-page .bubble-3 {
+  left: 31%;
+  top: 91%;
+  --bubble-size: 9px;
+  --bubble-speed: 12s;
+  animation-delay: -5s;
+}
+
+.landing-page .bubble-4 {
+  left: 55%;
+  top: 76%;
+  --bubble-size: 19px;
+  --bubble-speed: 16s;
+  animation-delay: -11s;
+}
+
+.landing-page .bubble-5 {
+  left: 68%;
+  top: 93%;
+  --bubble-size: 12px;
+  --bubble-speed: 15s;
+  animation-delay: -6s;
+}
+
+.landing-page .bubble-6 {
+  left: 79%;
+  top: 61%;
+  --bubble-size: 28px;
+  --bubble-speed: 20s;
+  animation-delay: -14s;
+}
+
+.landing-page .bubble-7 {
+  left: 90%;
+  top: 84%;
+  --bubble-size: 10px;
+  --bubble-speed: 11s;
+  animation-delay: -3s;
+}
+
+.landing-page .bubble-8 {
+  left: 44%;
+  top: 55%;
+  --bubble-size: 8px;
+  --bubble-speed: 10s;
+  animation-delay: -7s;
+}
+
+/* ============================================================
+   BUBBLE ANIMATION
+   ============================================================ */
+
+@keyframes goldBubbleFloat {
+  0% {
+    transform: translate3d(0, 24vh, 0) scale(0.72);
+    opacity: 0;
+  }
+
+  12% {
+    opacity: 0.38;
+  }
+
+  48% {
+    transform: translate3d(34px, -18vh, 0) scale(1);
+    opacity: 0.48;
+  }
+
+  76% {
+    transform: translate3d(-22px, -52vh, 0) scale(0.86);
+    opacity: 0.3;
+  }
+
+  100% {
+    transform: translate3d(18px, -88vh, 0) scale(0.55);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   LANDING CONTENT ABOVE BUBBLES
    ============================================================ */
 
 .landing-page .navbar,
@@ -910,6 +1031,13 @@ input, textarea, select {
   z-index: 2;
 }
 
-.landing-page .gold-bubbles {
-  z-index: 1;
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-page .gold-bubbles .bubble {
+    animation: none !important;
+    opacity: 0.35;
+  }
 }
