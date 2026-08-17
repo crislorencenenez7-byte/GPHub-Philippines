@@ -823,6 +823,10 @@ input, textarea, select {
    PREMIUM GOLD AMBIENT LAYER — INDEX ONLY
    Visual-only enhancement. No JS/data behavior changed.
    ============================================================ */
+/* ============================================================
+   PREMIUM GOLD AMBIENT LAYER — INDEX ONLY
+   ============================================================ */
+
 .landing-page {
   position: relative;
   isolation: isolate;
@@ -833,11 +837,24 @@ input, textarea, select {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  z-index: -3;
+  z-index: 0;
+
   background:
-    radial-gradient(circle at 50% 25%, rgba(255,215,0,.055), transparent 28%),
-    radial-gradient(circle at 15% 75%, rgba(255,215,0,.035), transparent 25%),
-    radial-gradient(circle at 90% 45%, rgba(255,215,0,.03), transparent 22%);
+    radial-gradient(
+      circle at 50% 25%,
+      rgba(255,215,0,.055),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 15% 75%,
+      rgba(255,215,0,.035),
+      transparent 25%
+    ),
+    radial-gradient(
+      circle at 90% 45%,
+      rgba(255,215,0,.03),
+      transparent 22%
+    );
 }
 
 .gold-bubbles {
@@ -845,7 +862,7 @@ input, textarea, select {
   inset: 0;
   overflow: hidden;
   pointer-events: none;
-  z-index: -1;
+  z-index: 1;
 }
 
 .gold-bubbles .bubble {
@@ -855,112 +872,44 @@ input, textarea, select {
   height: var(--bubble-size, 18px);
   border-radius: 50%;
   opacity: .42;
+
   background:
-    radial-gradient(circle at 30% 28%, rgba(255,255,255,.9) 0 7%, rgba(255,230,109,.85) 18%, rgba(255,215,0,.5) 48%, rgba(255,215,0,0) 72%);
+    radial-gradient(
+      circle at 30% 28%,
+      rgba(255,255,255,.9) 0 7%,
+      rgba(255,230,109,.85) 18%,
+      rgba(255,215,0,.5) 48%,
+      rgba(255,215,0,0) 72%
+    );
+
   box-shadow:
     0 0 14px rgba(255,215,0,.24),
     inset 0 0 7px rgba(255,255,255,.2);
+
   filter: blur(.15px);
-  animation: goldBubbleFloat var(--bubble-speed, 13s) ease-in-out infinite;
+
+  animation:
+    goldBubbleFloat
+    var(--bubble-speed, 13s)
+    ease-in-out
+    infinite;
 }
 
-.gold-bubbles .bubble::after {
-  content: "";
-  position: absolute;
-  inset: 22%;
-  border-radius: 50%;
-  border: 1px solid rgba(255,255,255,.22);
-}
+/* ============================================================
+   LANDING PAGE CONTENT — ALWAYS ABOVE BUBBLES
+   ============================================================ */
 
-.bubble-1 { left: 7%; top: 82%; --bubble-size: 13px; --bubble-speed: 14s; animation-delay: -2s !important; }
-.bubble-2 { left: 18%; top: 63%; --bubble-size: 25px; --bubble-speed: 18s; animation-delay: -9s !important; }
-.bubble-3 { left: 31%; top: 91%; --bubble-size: 9px; --bubble-speed: 12s; animation-delay: -5s !important; }
-.bubble-4 { left: 55%; top: 76%; --bubble-size: 19px; --bubble-speed: 16s; animation-delay: -11s !important; }
-.bubble-5 { left: 68%; top: 93%; --bubble-size: 12px; --bubble-speed: 15s; animation-delay: -6s !important; }
-.bubble-6 { left: 79%; top: 61%; --bubble-size: 28px; --bubble-speed: 20s; animation-delay: -14s !important; }
-.bubble-7 { left: 90%; top: 84%; --bubble-size: 10px; --bubble-speed: 11s; animation-delay: -3s !important; }
-.bubble-8 { left: 44%; top: 55%; --bubble-size: 8px; --bubble-speed: 10s; animation-delay: -7s !important; }
-
-@keyframes goldBubbleFloat {
-  0% { transform: translate3d(0, 24vh, 0) scale(.72); opacity: 0; }
-  12% { opacity: .38; }
-  48% { transform: translate3d(34px, -18vh, 0) scale(1); opacity: .48; }
-  76% { transform: translate3d(-22px, -52vh, 0) scale(.86); opacity: .3; }
-  100% { transform: translate3d(18px, -88vh, 0) scale(.55); opacity: 0; }
-}
-
-.landing-page .navbar {
-  background: linear-gradient(180deg, rgba(13,13,13,.94), rgba(13,13,13,.72));
-  border-bottom-color: rgba(255,215,0,.2);
-}
-
-.landing-page .hero {
-  min-height: 92vh;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(255,215,0,.09), transparent 32%),
-    radial-gradient(circle at 15% 30%, rgba(255,215,0,.07), transparent 28%),
-    radial-gradient(circle at 85% 75%, rgba(255,215,0,.055), transparent 30%),
-    var(--color-black);
-}
-
-.landing-page .hero-content {
-  position: relative;
-  padding: clamp(24px, 5vw, 52px);
-  border: 1px solid rgba(255,215,0,.12);
-  border-radius: 30px;
-  background: linear-gradient(145deg, rgba(255,255,255,.045), rgba(255,215,0,.012));
-  box-shadow: 0 30px 90px rgba(0,0,0,.42), 0 0 70px rgba(255,215,0,.055);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
-
-.landing-page .hero h1 {
-  text-shadow: 0 10px 40px rgba(0,0,0,.45);
-}
-
-.landing-page .hero h1 .text-gold {
-  background: linear-gradient(90deg, #ffd700, #fff1a6, #ffd700);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: goldTextShimmer 5s linear infinite;
-}
-
-@keyframes goldTextShimmer {
-  to { background-position: 200% center; }
-}
-
+.landing-page .navbar,
+.landing-page .hero,
 .landing-page .about-section,
-.landing-page #announcements {
+.landing-page #scheduled-update,
+.landing-page #announcements,
+.landing-page .site-footer,
+.landing-page #scroll-top {
   position: relative;
+  z-index: 2;
 }
 
-.landing-page .about-grid > div,
-.landing-page #latest-announcement > * {
-  animation: landingCardIn .65s ease both;
-}
-
-.landing-page .about-grid > div:nth-child(2) { animation-delay: .12s; }
-
-.landing-page .card,
-.landing-page .announcement-card {
-  box-shadow: 0 18px 50px rgba(0,0,0,.28), 0 0 0 rgba(255,215,0,0);
-}
-
-.landing-page .card:hover,
-.landing-page .announcement-card:hover {
-  box-shadow: 0 22px 60px rgba(0,0,0,.36), 0 0 34px rgba(255,215,0,.09);
-}
-
-@keyframes landingCardIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .gold-bubbles .bubble,
-  .landing-page .hero h1 .text-gold,
-  .landing-page .about-grid > div,
-  .landing-page #latest-announcement > * { animation: none !important; }
+.landing-page .gold-bubbles {
+  z-index: 1;
 }
