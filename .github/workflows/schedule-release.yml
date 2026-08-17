@@ -7,9 +7,7 @@ on:
   workflow_dispatch:
 
   repository_dispatch:
-    types:
-      - schedule-release
-
+    types: [schedule-release]
 permissions:
   contents: write
 
